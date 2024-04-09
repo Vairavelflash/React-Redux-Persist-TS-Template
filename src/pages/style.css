@@ -1,0 +1,13 @@
+.layout{
+    margin-top: 10%;
+}
+
+.layoutBody{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+.childBody{
+    width: 90%;
+}
