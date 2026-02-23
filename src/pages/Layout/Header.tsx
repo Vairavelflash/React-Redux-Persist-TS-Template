@@ -1,9 +1,9 @@
-import React from 'react'
-
 function Header() {
   return (
-    <div>Header</div>
-  )
+    <header className="header">
+      <h1>College Lacrosse Head Coach Sim</h1>
+    </header>
+  );
 }
 
-export default Header
+export default Header;
