@@ -8,7 +8,6 @@ import {
   simSeason,
   startNewSeason,
   resetSeason,
-  advanceSeasonPhase,
 } from '../features/season/seasonSlice';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 
@@ -55,14 +54,6 @@ function SeasonPage() {
           <button type="button" onClick={() => dispatch(simSeason())} disabled={!hasSeason || summary.currentWeekIndex >= 12}>
             Sim Season
           </button>
-
-          <button
-            type="button"
-            onClick={() => dispatch(advanceSeasonPhase())}
-            disabled={summary.phase !== 'PLAYOFF'}
-          >
-            Complete Playoff Phase
-          </button>
           <button type="button" onClick={() => dispatch(resetSeason())}>
             Reset
           </button>
@@ -75,7 +66,6 @@ function SeasonPage() {
 
         <p>
           <Link to="/season/standings">Go to Standings</Link> ·{' '}
-          <Link to="/rankings">Go to Rankings</Link> ·{' '}
           <Link to={`/season/week/${Math.min(summary.currentWeekIndex, 11)}`}>Go to Current Week View</Link>
         </p>
       </div>

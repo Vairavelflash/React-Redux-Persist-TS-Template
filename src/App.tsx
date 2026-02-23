@@ -5,9 +5,6 @@ import ConferencesPage from './pages/ConferencesPage';
 import TeamPage from './pages/TeamPage';
 import RankingsPage from './pages/RankingsPage';
 import ExhibitionPage from './pages/ExhibitionPage';
-import SeasonPage from './pages/SeasonPage';
-import SeasonWeekPage from './pages/SeasonWeekPage';
-import SeasonStandingsPage from './pages/SeasonStandingsPage';
 import './App.css';
 
 function App() {
@@ -21,9 +18,6 @@ function App() {
         { path: 'team/:id', element: <TeamPage /> },
         { path: 'rankings', element: <RankingsPage /> },
         { path: 'exhibition', element: <ExhibitionPage /> },
-        { path: 'season', element: <SeasonPage /> },
-        { path: 'season/week/:weekIndex', element: <SeasonWeekPage /> },
-        { path: 'season/standings', element: <SeasonStandingsPage /> },
       ],
     },
   ]);

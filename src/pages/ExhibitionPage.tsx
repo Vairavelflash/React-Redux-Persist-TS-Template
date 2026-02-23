@@ -67,11 +67,8 @@ function ExhibitionPage() {
   const teamAId = exhibition.selectedTeamAId ?? teams[0]?.id ?? '';
   const teamBId = exhibition.selectedTeamBId ?? teams[1]?.id ?? '';
 
-  const isValidMatchup = teamAId !== '' && teamBId !== '' && teamAId !== teamBId;
-
   const onSubmit = (event: FormEvent) => {
     event.preventDefault();
-    if (!isValidMatchup) return;
     dispatch(setTeams({ teamAId, teamBId }));
     dispatch(runExhibition());
   };
@@ -135,11 +132,9 @@ function ExhibitionPage() {
           <button type="button" onClick={() => dispatch(setSeed(Math.floor(Math.random() * 1000000000)))}>
             Random Seed
           </button>
-          <button type="submit" disabled={!isValidMatchup}>Sim Game</button>
+          <button type="submit">Sim Game</button>
         </div>
       </form>
-
-      {!isValidMatchup ? <p className="warnText">Choose two different teams to run an exhibition.</p> : null}
 
       {exhibition.lastResult ? (
         <div className="card">

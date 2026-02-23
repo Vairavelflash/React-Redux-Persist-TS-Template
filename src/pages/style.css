@@ -82,18 +82,3 @@ input {
   align-items: flex-end;
   margin-top: 0.5rem;
 }
-
-table {
-  font-size: 0.9rem;
-}
-
-.seedRow button {
-  height: 36px;
-}
-
-
-.warnText {
-  color: #a63b00;
-  font-weight: 600;
-  margin: 0.5rem 0 1rem;
-}
