@@ -1,17 +1,14 @@
-import React from "react";
-import { RootState } from "../store/store";
-import { useDispatch, useSelector } from "react-redux";
-import { setState } from "../store/features/featureslice";
+import { Link } from 'react-router-dom';
 
 function Home() {
-  const dispatch = useDispatch();
-  const btnState = useSelector((state: RootState) => state.configuration.btn);
   return (
-    <div className="card">
-      <button onClick={() => dispatch(setState(!btnState))}>
-        Home - Button state is {btnState ? "True" : "False"}
-      </button>
-    </div>
+    <section className="card">
+      <h2>League Scaffold Ready</h2>
+      <p>Explore all 16 conferences, browse teams, and inspect generated roster quality summaries.</p>
+      <p>
+        <Link to="/conferences">Go to Conferences</Link>
+      </p>
+    </section>
   );
 }
 
