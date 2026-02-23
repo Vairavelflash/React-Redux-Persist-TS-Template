@@ -82,11 +82,3 @@ input {
   align-items: flex-end;
   margin-top: 0.5rem;
 }
-
-table {
-  font-size: 0.9rem;
-}
-
-.seedRow button {
-  height: 36px;
-}
