@@ -9,8 +9,6 @@ function LeftNavBar() {
       <NavLink to="/conferences">Conferences</NavLink>
       <NavLink to="/rankings">Rankings</NavLink>
       <NavLink to="/exhibition">Exhibition</NavLink>
-      <NavLink to="/season">Season</NavLink>
-      <NavLink to="/season/standings">Standings</NavLink>
     </nav>
   );
 }
