@@ -1,9 +1,5 @@
-import React from 'react'
-
 function Footer() {
-  return (
-    <div>Footer</div>
-  )
+  return <footer className="footer">Fictional teams. No NCAA trademarks used.</footer>;
 }
 
-export default Footer
+export default Footer;
