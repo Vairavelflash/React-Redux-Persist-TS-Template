@@ -24,14 +24,14 @@ function SeasonPage() {
   const weekSelector = useMemo(() => selectWeekGames(currentWeekForList), [currentWeekForList]);
   const thisWeekGames = useAppSelector(weekSelector);
 
+  const teamById = useMemo(() => new Map(teams.map((team) => [team.id, team])), [teams]);
+
   const filteredGames = thisWeekGames.filter(({ game }) => {
     if (conferenceFilter === 'ALL') return true;
-    const home = teams.find((t) => t.id === game.homeTeamId);
-    const away = teams.find((t) => t.id === game.awayTeamId);
+    const home = teamById.get(game.homeTeamId);
+    const away = teamById.get(game.awayTeamId);
     return home?.conferenceId === conferenceFilter || away?.conferenceId === conferenceFilter;
   });
-
-  const teamById = useMemo(() => new Map(teams.map((team) => [team.id, team])), [teams]);
 
   return (
     <section>

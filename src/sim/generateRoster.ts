@@ -26,11 +26,20 @@ function seedToNumber(seed: string): number {
   return hash >>> 0;
 }
 
+// Cache rosters since they are deterministic (same team+seed = same output).
+// During a season sim, generateRoster is called 128+ times per week with the
+// same seed, so caching avoids redundant PRNG work.
+const rosterCache = new Map<string, Player[]>();
+
 export function generateRoster(team: Team, seed: string): Player[] {
-  const rng = makeRng(seedToNumber(`${seed}:${team.id}`));
+  const cacheKey = `${seed}:${team.id}`;
+  const cached = rosterCache.get(cacheKey);
+  if (cached) return cached;
+
+  const rng = makeRng(seedToNumber(cacheKey));
   const baseline = 45 + team.prestige * 0.4;
 
-  return POSITION_DISTRIBUTION.map((position, index) => {
+  const roster = POSITION_DISTRIBUTION.map((position, index) => {
     const year = randInt(rng, 1, 4) as 1 | 2 | 3 | 4;
     const variance = randInt(rng, -12, 12);
 
@@ -59,4 +68,7 @@ export function generateRoster(team: Team, seed: string): Player[] {
       overall,
     };
   });
+
+  rosterCache.set(cacheKey, roster);
+  return roster;
 }

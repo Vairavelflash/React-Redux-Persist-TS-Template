@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { simNextPlayoffRound, selectPlayoffState, startPlayoffs } from '../features/season/seasonSlice';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 
@@ -6,7 +7,7 @@ function PlayoffsPage() {
   const playoffState = useAppSelector(selectPlayoffState);
   const phase = useAppSelector((state) => state.season.phase);
   const teams = useAppSelector((state) => state.league.teams);
-  const teamById = new Map(teams.map((team) => [team.id, team]));
+  const teamById = useMemo(() => new Map(teams.map((team) => [team.id, team])), [teams]);
 
   return (
     <section>

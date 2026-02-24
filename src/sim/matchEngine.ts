@@ -1,36 +1,9 @@
-import { Player, Team } from '../types/sim';
+import { Player, PlayerGameStats, Tactics, Team, TeamGameStats } from '../types/sim';
 import { makeRng, normalish, pickOne, randInt } from './rng';
-
-export interface Tactics {
-  tempo: 'slow' | 'normal' | 'fast';
-  rideClear: 'conservative' | 'balanced' | 'aggressive';
-  slideAggression: 'early' | 'normal' | 'late';
-}
 
 export interface TeamSimInput {
   team: Team;
   roster: Player[];
-}
-
-export interface TeamGameStats {
-  teamId: string;
-  goals: number;
-  shots: number;
-  saves: number;
-  turnovers: number;
-  groundBalls: number;
-  penalties: number;
-  faceoffPct: number;
-}
-
-export interface PlayerGameStats {
-  playerId: string;
-  teamId: string;
-  name: string;
-  position: Player['position'];
-  goals: number;
-  assists: number;
-  saves: number;
 }
 
 export interface GameResult {
@@ -54,8 +27,7 @@ interface TeamRatings {
   goalie: number;
   faceoff: number;
   discipline: number;
-  attackers: Player[];
-  middies: Player[];
+  offensivePlayers: Player[];
   goaliePlayer: Player;
 }
 
@@ -64,20 +36,45 @@ function average(values: number[]): number {
 }
 
 function calcRatings(roster: Player[]): TeamRatings {
-  const attackers = roster.filter((p) => p.position === 'A');
-  const middies = roster.filter((p) => p.position === 'M');
-  const defenders = roster.filter((p) => p.position === 'D' || p.position === 'LSM');
-  const faceoffPlayers = roster.filter((p) => p.position === 'FO');
-  const goalies = roster.filter((p) => p.position === 'G');
-  const goaliePlayer = goalies[0] ?? roster[0];
+  const offensivePlayers: Player[] = [];
+  const defensivePlayers: Player[] = [];
+  const faceoffPlayers: Player[] = [];
+  let goaliePlayer: Player | undefined;
 
-  const offense = average([...attackers, ...middies].map((p) => p.shooting * 0.55 + p.passing * 0.25 + p.IQ * 0.2));
-  const defense = average([...defenders, ...middies].map((p) => p.defense * 0.6 + p.speed * 0.2 + p.IQ * 0.2));
+  // Single pass over roster instead of 5 separate filter() calls
+  for (const p of roster) {
+    switch (p.position) {
+      case 'A':
+        offensivePlayers.push(p);
+        break;
+      case 'M':
+        offensivePlayers.push(p);
+        defensivePlayers.push(p);
+        break;
+      case 'D':
+        defensivePlayers.push(p);
+        break;
+      case 'LSM':
+        defensivePlayers.push(p);
+        break;
+      case 'FO':
+        faceoffPlayers.push(p);
+        break;
+      case 'G':
+        goaliePlayer = goaliePlayer ?? p;
+        break;
+    }
+  }
+
+  goaliePlayer = goaliePlayer ?? roster[0];
+
+  const offense = average(offensivePlayers.map((p) => p.shooting * 0.55 + p.passing * 0.25 + p.IQ * 0.2));
+  const defense = average(defensivePlayers.map((p) => p.defense * 0.6 + p.speed * 0.2 + p.IQ * 0.2));
   const goalie = goaliePlayer.defense * 0.7 + goaliePlayer.IQ * 0.3;
   const faceoff = average(faceoffPlayers.map((p) => p.passing * 0.15 + p.speed * 0.2 + p.discipline * 0.2 + p.overall * 0.45));
   const discipline = average(roster.map((p) => p.discipline));
 
-  return { offense, defense, goalie, faceoff, discipline, attackers, middies, goaliePlayer };
+  return { offense, defense, goalie, faceoff, discipline, offensivePlayers, goaliePlayer };
 }
 
 function tempoModifier(tempo: Tactics['tempo']): number {
@@ -114,12 +111,6 @@ function clockForPossession(pos: number, total: number): { quarter: number; time
   return { quarter, time: `${mins}:${secs}` };
 }
 
-function weightedPlayerForGoal(rng: () => number, ratings: TeamRatings): Player {
-  const core = [...ratings.attackers, ...ratings.middies];
-  if (core.length === 0) return ratings.goaliePlayer;
-  return pickOne(rng, core);
-}
-
 export function simulateGame(
   teamA: TeamSimInput,
   teamB: TeamSimInput,
@@ -144,6 +135,12 @@ export function simulateGame(
   const pStatsB = new Map<string, PlayerGameStats>();
   const highlights: string[] = [];
 
+  // Pre-compute offense/defense powers with tactics (constant per game)
+  const offPowerA = ratingA.offense + offenseBoostFromTactics(tacticsA);
+  const defPowerA = ratingA.defense + defenseBoostFromTactics(tacticsA);
+  const offPowerB = ratingB.offense + offenseBoostFromTactics(tacticsB);
+  const defPowerB = ratingB.defense + defenseBoostFromTactics(tacticsB);
+
   function ensurePlayerStats(target: Map<string, PlayerGameStats>, player: Player, teamId: string): PlayerGameStats {
     const existing = target.get(player.id);
     if (existing) return existing;
@@ -152,10 +149,23 @@ export function simulateGame(
     return created;
   }
 
-  function runPossession(offenseInput: TeamSimInput, defenseInput: TeamSimInput, offenseRatings: TeamRatings, defenseRatings: TeamRatings, offenseTactics: Tactics, defenseTactics: Tactics, offenseStats: TeamGameStats, defenseStats: TeamGameStats, playerStats: Map<string, PlayerGameStats>, defensePlayerStats: Map<string, PlayerGameStats>, possessionIndex: number): void {
+  function runPossession(
+    offenseInput: TeamSimInput,
+    offenseRatings: TeamRatings,
+    offensePower: number,
+    defensePower: number,
+    defenseInput: TeamSimInput,
+    defenseRatings: TeamRatings,
+    offenseTactics: Tactics,
+    offenseStats: TeamGameStats,
+    defenseStats: TeamGameStats,
+    playerStats: Map<string, PlayerGameStats>,
+    defensePlayerStats: Map<string, PlayerGameStats>,
+    possessionIndex: number,
+  ): void {
     const disciplineGap = (100 - offenseRatings.discipline) / 140;
     const turnoverChance = 0.15 + disciplineGap + (offenseTactics.rideClear === 'aggressive' ? 0.02 : 0);
-    const penaltyChance = 0.045 + (100 - offenseRatings.discipline) / 220 + (defenseTactics.slideAggression === 'early' ? 0.015 : 0);
+    const penaltyChance = 0.045 + (100 - offenseRatings.discipline) / 220 + (offenseTactics.rideClear === 'aggressive' ? 0.015 : 0);
 
     if (rng() < penaltyChance) {
       offenseStats.penalties += 1;
@@ -178,8 +188,6 @@ export function simulateGame(
       return;
     }
 
-    const offensePower = offenseRatings.offense + offenseBoostFromTactics(offenseTactics);
-    const defensePower = defenseRatings.defense + defenseBoostFromTactics(defenseTactics);
     const quality = (offensePower - defensePower) / 110 + normalish(rng) * 0.06;
 
     const shotChance = Math.min(0.88, Math.max(0.48, 0.66 + quality));
@@ -188,7 +196,8 @@ export function simulateGame(
     }
 
     offenseStats.shots += 1;
-    const shooter = weightedPlayerForGoal(rng, offenseRatings);
+    const offPlayers = offenseRatings.offensivePlayers;
+    const shooter = offPlayers.length > 0 ? pickOne(rng, offPlayers) : offenseRatings.goaliePlayer;
 
     const saveChance = Math.min(0.58, Math.max(0.2, 0.34 + (defenseRatings.goalie - offensePower) / 180));
     const missChance = Math.min(0.22, Math.max(0.06, 0.12 - quality / 4));
@@ -209,7 +218,7 @@ export function simulateGame(
     scorerStats.goals += 1;
 
     if (rng() < 0.64) {
-      const assister = weightedPlayerForGoal(rng, offenseRatings);
+      const assister = offPlayers.length > 0 ? pickOne(rng, offPlayers) : offenseRatings.goaliePlayer;
       if (assister.id !== shooter.id) {
         const assisterStats = ensurePlayerStats(playerStats, assister, offenseInput.team.id);
         assisterStats.assists += 1;
@@ -224,11 +233,11 @@ export function simulateGame(
   }
 
   for (let i = 0; i < possessionsA; i += 1) {
-    runPossession(teamA, teamB, ratingA, ratingB, tacticsA, tacticsB, statsA, statsB, pStatsA, pStatsB, i);
+    runPossession(teamA, ratingA, offPowerA, defPowerB, teamB, ratingB, tacticsA, statsA, statsB, pStatsA, pStatsB, i);
   }
 
   for (let i = 0; i < possessionsB; i += 1) {
-    runPossession(teamB, teamA, ratingB, ratingA, tacticsB, tacticsA, statsB, statsA, pStatsB, pStatsA, possessionsA + i);
+    runPossession(teamB, ratingB, offPowerB, defPowerA, teamA, ratingA, tacticsB, statsB, statsA, pStatsB, pStatsA, possessionsA + i);
   }
 
   if (highlights.length < 10) {

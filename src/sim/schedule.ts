@@ -66,25 +66,51 @@ function tryBuildWeekMatchups(
   const scheduled: [string, string][] = [];
   const used = new Set<string>();
 
+  // Pre-group teams by conference to avoid scanning all 128 teams per candidate check.
+  // candidatesFor only considers cross-conference opponents, so we can exclude
+  // same-conference teams up front.
+  const teamsByConf = new Map<string, string[]>();
+  for (const team of teams) {
+    let arr = teamsByConf.get(team.conferenceId);
+    if (!arr) {
+      arr = [];
+      teamsByConf.set(team.conferenceId, arr);
+    }
+    arr.push(team.id);
+  }
+
   function candidatesFor(teamId: string): string[] {
-    return teamIds.filter((candidate) => {
-      if (candidate === teamId) return false;
-      if (used.has(candidate)) return false;
-      if (confByTeam.get(candidate) === confByTeam.get(teamId)) return false;
-      if (playedOpponents.get(teamId)?.has(candidate)) return false;
-      return true;
-    });
+    const conf = confByTeam.get(teamId)!;
+    const played = playedOpponents.get(teamId);
+    const result: string[] = [];
+    for (const [c, ids] of teamsByConf) {
+      if (c === conf) continue;
+      for (const candidate of ids) {
+        if (used.has(candidate)) continue;
+        if (played?.has(candidate)) continue;
+        result.push(candidate);
+      }
+    }
+    return result;
   }
 
   function recurse(): boolean {
     if (used.size === teamIds.length) return true;
 
-    const available = teamIds.filter((id) => !used.has(id));
-    available.sort((a, b) => candidatesFor(a).length - candidatesFor(b).length);
-    const teamId = available[0];
-    const candidates = candidatesFor(teamId);
+    // Find the most constrained unused team (fewest candidates)
+    let bestTeam = '';
+    let bestCount = Infinity;
+    for (const id of teamIds) {
+      if (used.has(id)) continue;
+      const count = candidatesFor(id).length;
+      if (count < bestCount) {
+        bestCount = count;
+        bestTeam = id;
+        if (count === 0) return false;
+      }
+    }
 
-    if (candidates.length === 0) return false;
+    const candidates = candidatesFor(bestTeam);
 
     for (let i = candidates.length - 1; i > 0; i -= 1) {
       const j = randInt(rng, 0, i);
@@ -92,15 +118,15 @@ function tryBuildWeekMatchups(
     }
 
     for (const opponent of candidates) {
-      used.add(teamId);
+      used.add(bestTeam);
       used.add(opponent);
-      scheduled.push([teamId, opponent]);
+      scheduled.push([bestTeam, opponent]);
 
       if (recurse()) return true;
 
       scheduled.pop();
       used.delete(opponent);
-      used.delete(teamId);
+      used.delete(bestTeam);
     }
 
     return false;
