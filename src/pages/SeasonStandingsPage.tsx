@@ -26,44 +26,41 @@ function SeasonStandingsPage() {
           </select>
         </label>
 
-        <div className="scrollPanel">
-          <table>
-            <thead>
-              <tr>
-                <th>Team</th>
-                <th>Conf</th>
-                <th>Overall</th>
-                <th>PF</th>
-                <th>PA</th>
-                <th>Diff</th>
+        <table>
+          <thead>
+            <tr>
+              <th>Team</th>
+              <th>Conf</th>
+              <th>Overall</th>
+              <th>PF</th>
+              <th>PA</th>
+              <th>Diff</th>
+            </tr>
+          </thead>
+          <tbody>
+            {conferenceRows.map((row) => (
+              <tr key={row.team.id}>
+                <td>
+                  {row.team.schoolName} {row.team.nickname}
+                </td>
+                <td>
+                  {row.record.confWins}-{row.record.confLosses}
+                </td>
+                <td>
+                  {row.record.wins}-{row.record.losses}
+                </td>
+                <td>{row.record.pointsFor}</td>
+                <td>{row.record.pointsAgainst}</td>
+                <td>{row.record.pointsFor - row.record.pointsAgainst}</td>
               </tr>
-            </thead>
-            <tbody>
-              {conferenceRows.map((row) => (
-                <tr key={row.team.id}>
-                  <td>
-                    {row.team.schoolName} {row.team.nickname}
-                  </td>
-                  <td>
-                    {row.record.confWins}-{row.record.confLosses}
-                  </td>
-                  <td>
-                    {row.record.wins}-{row.record.losses}
-                  </td>
-                  <td>{row.record.pointsFor}</td>
-                  <td>{row.record.pointsAgainst}</td>
-                  <td>{row.record.pointsFor - row.record.pointsAgainst}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+            ))}
+          </tbody>
+        </table>
       </div>
 
       <div className="card">
         <h3>Overall Standings</h3>
-        <div className="scrollPanel">
-          <table>
+        <table>
           <thead>
             <tr>
               <th>#</th>
@@ -90,8 +87,7 @@ function SeasonStandingsPage() {
               </tr>
             ))}
           </tbody>
-          </table>
-        </div>
+        </table>
       </div>
     </section>
   );

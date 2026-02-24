@@ -11,30 +11,28 @@ function ConferencesPage() {
       {conferenceTables.map(({ conference, teams }) => (
         <div key={conference.id} className="conferenceCard">
           <h3>{conference.name}</h3>
-          <div className="scrollPanel">
-            <table>
-              <thead>
-                <tr>
-                  <th>School</th>
-                  <th>Nickname</th>
-                  <th>Region</th>
-                  <th>Prestige</th>
+          <table>
+            <thead>
+              <tr>
+                <th>School</th>
+                <th>Nickname</th>
+                <th>Region</th>
+                <th>Prestige</th>
+              </tr>
+            </thead>
+            <tbody>
+              {teams.map((team) => (
+                <tr key={team.id}>
+                  <td>
+                    <Link to={`/team/${team.id}`}>{team.schoolName}</Link>
+                  </td>
+                  <td>{team.nickname}</td>
+                  <td>{team.region}</td>
+                  <td>{team.prestige}</td>
                 </tr>
-              </thead>
-              <tbody>
-                {teams.map((team) => (
-                  <tr key={team.id}>
-                    <td>
-                      <Link to={`/team/${team.id}`}>{team.schoolName}</Link>
-                    </td>
-                    <td>{team.nickname}</td>
-                    <td>{team.region}</td>
-                    <td>{team.prestige}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+              ))}
+            </tbody>
+          </table>
         </div>
       ))}
     </section>

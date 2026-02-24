@@ -1,6 +1,5 @@
 import { generateRoster } from './generateRoster';
 import { simulateGame } from './matchEngine';
-import { makeRng } from './rng';
 import { GameSummary, PlayoffGame, PlayoffRoundName, PlayoffSeed, PlayoffState, RankingRow, Tactics, Team } from '../types/sim';
 
 const DEFAULT_TACTICS: Tactics = {
@@ -153,17 +152,12 @@ export function simulatePlayoffRound(state: PlayoffState, teams: Team[], baseSee
       baseSeed + index,
     );
 
-    const needsTiebreak = result.scoreA === result.scoreB;
-    const tiebreakRng = makeRng(baseSeed + 10_000 + index);
-    const homeWinsTiebreak = tiebreakRng() >= 0.5;
-    const adjustedHomeScore = needsTiebreak && homeWinsTiebreak ? result.scoreA + 1 : result.scoreA;
-    const adjustedAwayScore = needsTiebreak && !homeWinsTiebreak ? result.scoreB + 1 : result.scoreB;
-    const winnerTeamId = adjustedHomeScore > adjustedAwayScore ? game.homeTeamId : game.awayTeamId;
+    const winnerTeamId = result.scoreA >= result.scoreB ? game.homeTeamId : game.awayTeamId;
 
     return {
       ...game,
       winnerTeamId,
-      result: toSummary(game, adjustedHomeScore, adjustedAwayScore, result),
+      result: toSummary(game, result.scoreA, result.scoreB, result),
     };
   });
 

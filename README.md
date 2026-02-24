@@ -1,16 +1,8 @@
 # College Lacrosse Head Coach Sim (React + Redux + TS)
 
-A deterministic, web-based college lacrosse head coach simulation built on React, Vite, Redux Toolkit, and TypeScript.
+A deterministic, web-based college lacrosse head coach simulation built on a React/Vite/Redux Toolkit/TypeScript stack. The project uses fictionalized NCAA-ish programs, supports a 128-team league structure, includes seeded exhibition simulation, and contains an in-progress full-season loop with schedule simulation and standings.
 
-## Current features
-
-- 128-team fictional league (16 conferences x 8 teams).
-- Season command center with seeded season starts, week/season sim controls, and standings/rankings/playoff navigation.
-- Coach Career onboarding (`/career/setup`) with program selection and recruiting board workflow.
-- Deterministic simulation modules under `src/sim/` (schedule, match engine, rankings, playoffs, recruiting helpers).
-- Persisted gameplay/user state via Redux Persist (`season`, `coach`, `ui`) while keeping league data non-persisted.
-
-See roadmap details in [ROADMAP.md](./ROADMAP.md).
+See the development roadmap here: [ROADMAP.md](./ROADMAP.md).
 
 ## Run the app
 
@@ -19,14 +11,13 @@ npm install
 npm run dev
 ```
 
-## Build and checks
+## Build
 
 ```bash
-npm run lint
 npm run build
 ```
 
-## Scripts
+## Project scripts
 
 - `npm run dev` — Start Vite development server
 - `npm run build` — Type-check + production build
