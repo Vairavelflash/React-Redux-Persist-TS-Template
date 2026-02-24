@@ -1,14 +1,12 @@
 function RightNavBar() {
   return (
     <aside className="rightNav">
-      <h3>League Snapshot</h3>
+      <h3>Scaffold Status</h3>
       <ul>
-        <li>128 teams · 16 conferences</li>
-        <li>12-game regular season</li>
-        <li>Top 25 + Top 12 projection</li>
-        <li>12-team playoff bracket</li>
+        <li>128-team league loaded</li>
+        <li>Deterministic roster generation</li>
+        <li>Season + coach persistence wired</li>
       </ul>
-      <p className="subHeader">Tip: Sim a full season, then open Playoffs to run rounds to a champion.</p>
     </aside>
   );
 }
