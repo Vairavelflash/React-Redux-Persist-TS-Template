@@ -1,17 +1,12 @@
-import React from "react";
-import { RootState } from "../store/store";
-import { useDispatch, useSelector } from "react-redux";
-import { setState } from "../store/features/featureslice";
+import { Link } from 'react-router-dom';
 
 function Login() {
-  const dispatch = useDispatch();
-  const btnState = useSelector((state: RootState) => state.configuration.btn);
   return (
-    <div className="card">
-      <button onClick={() => dispatch(setState(!btnState))}>
-        Login - Button state is {btnState ? "True" : "False"}
-      </button>
-    </div>
+    <section className="card">
+      <h2>Legacy Login Placeholder</h2>
+      <p>This template now boots directly into the sim scaffold.</p>
+      <Link to="/">Return home</Link>
+    </section>
   );
 }
 
