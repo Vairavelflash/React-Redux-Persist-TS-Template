@@ -1,7 +1,11 @@
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
 import { Recruit, Tactics } from '../../types/sim';
+
 import { generateRecruitPool } from '../../sim/recruiting';
 import { RootState } from '../../store/store';
+
+export const WEEKLY_HOURS_CAP = 120;
+export const MAX_HOURS_PER_RECRUIT = 20;
 
 export interface CoachProfile {
   name: string;
@@ -94,7 +98,24 @@ const coachSlice = createSlice({
         delete state.weeklyHoursByRecruitId[action.payload];
     },
     setRecruitHours: (state, action: PayloadAction<{ recruitId: string; hours: number }>) => {
-        state.weeklyHoursByRecruitId[action.payload.recruitId] = action.payload.hours;
+        const { recruitId, hours } = action.payload;
+
+        // Ensure recruit is on the board
+        if (!state.boardRecruitIds.includes(recruitId)) {
+            return;
+        }
+
+        const currentHours = state.weeklyHoursByRecruitId[recruitId] || 0;
+        const totalHours = state.boardRecruitIds.reduce((sum, id) => sum + (state.weeklyHoursByRecruitId[id] || 0), 0);
+        const hoursWithoutThisRecruit = totalHours - currentHours;
+
+        let validatedHours = Math.max(0, Math.min(MAX_HOURS_PER_RECRUIT, hours));
+
+        if (hoursWithoutThisRecruit + validatedHours > WEEKLY_HOURS_CAP) {
+            validatedHours = Math.max(0, WEEKLY_HOURS_CAP - hoursWithoutThisRecruit);
+        }
+
+        state.weeklyHoursByRecruitId[recruitId] = validatedHours;
     },
     applyRecruitingUpdates: (state, action: PayloadAction<{
         interestUpdates: Record<string, number>;

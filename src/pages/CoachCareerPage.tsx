@@ -6,12 +6,12 @@ import {
   initializeRecruitingBoard,
   removeRecruitFromBoard,
   setRecruitHours,
+  WEEKLY_HOURS_CAP,
+  MAX_HOURS_PER_RECRUIT,
 } from '../features/coach/coachSlice';
 import { selectTeamRecords } from '../features/season/seasonSlice';
 import { estimateRecruitFit } from '../sim/recruiting';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
-
-const WEEKLY_HOURS_CAP = 120;
 
 function CoachCareerPage() {
   const dispatch = useAppDispatch();
@@ -68,9 +68,9 @@ function CoachCareerPage() {
 
   function onHoursChange(recruitId: string, nextHours: number): void {
     const current = coach.weeklyHoursByRecruitId[recruitId] ?? 0;
-    const requested = Math.max(0, Math.min(20, nextHours));
+    const requested = Math.max(0, Math.min(MAX_HOURS_PER_RECRUIT, nextHours));
     const withoutCurrent = totalHours - current;
-    const allowed = Math.min(20, Math.max(0, WEEKLY_HOURS_CAP - withoutCurrent));
+    const allowed = Math.min(MAX_HOURS_PER_RECRUIT, Math.max(0, WEEKLY_HOURS_CAP - withoutCurrent));
     dispatch(setRecruitHours({ recruitId, hours: Math.min(requested, allowed) }));
   }
 
@@ -276,7 +276,7 @@ function CoachCareerPage() {
                         <input
                           type="number"
                           min={0}
-                          max={20}
+                          max={MAX_HOURS_PER_RECRUIT}
                           value={coach.weeklyHoursByRecruitId[recruit.id] ?? 0}
                           onChange={(event) => onHoursChange(recruit.id, Number(event.target.value) || 0)}
                         />
