@@ -14,23 +14,49 @@ interface TeamRatings {
   goaliePlayer: Player;
 }
 
-function average(values: number[]): number {
-  return values.reduce((sum, value) => sum + value, 0) / Math.max(values.length, 1);
-}
-
 function calcRatings(roster: Player[]): TeamRatings {
-  const attackers = roster.filter((p) => p.position === 'A');
-  const middies = roster.filter((p) => p.position === 'M');
-  const defenders = roster.filter((p) => p.position === 'D' || p.position === 'LSM');
-  const faceoffPlayers = roster.filter((p) => p.position === 'FO');
-  const goalies = roster.filter((p) => p.position === 'G');
-  const goaliePlayer = goalies[0] ?? roster[0];
+  const attackers: Player[] = [];
+  const middies: Player[] = [];
 
-  const offense = average([...attackers, ...middies].map((p) => p.shooting * 0.55 + p.passing * 0.25 + p.IQ * 0.2));
-  const defense = average([...defenders, ...middies].map((p) => p.defense * 0.6 + p.speed * 0.2 + p.IQ * 0.2));
+  let offSum = 0;
+  let defSum = 0;
+  let foSum = 0;
+  let disSum = 0;
+
+  let defendersCount = 0;
+  let faceoffCount = 0;
+  let goaliePlayer: Player | undefined;
+
+  for (let i = 0; i < roster.length; i++) {
+    const p = roster[i];
+    disSum += p.discipline;
+
+    const pos = p.position;
+    if (pos === 'A') {
+      attackers.push(p);
+      offSum += p.shooting * 0.55 + p.passing * 0.25 + p.IQ * 0.2;
+    } else if (pos === 'M') {
+      middies.push(p);
+      offSum += p.shooting * 0.55 + p.passing * 0.25 + p.IQ * 0.2;
+      defSum += p.defense * 0.6 + p.speed * 0.2 + p.IQ * 0.2;
+    } else if (pos === 'D' || pos === 'LSM') {
+      defendersCount++;
+      defSum += p.defense * 0.6 + p.speed * 0.2 + p.IQ * 0.2;
+    } else if (pos === 'FO') {
+      faceoffCount++;
+      foSum += p.passing * 0.15 + p.speed * 0.2 + p.discipline * 0.2 + p.overall * 0.45;
+    } else if (pos === 'G') {
+      if (!goaliePlayer) goaliePlayer = p;
+    }
+  }
+
+  if (!goaliePlayer) goaliePlayer = roster[0];
+
+  const offense = offSum / Math.max(attackers.length + middies.length, 1);
+  const defense = defSum / Math.max(defendersCount + middies.length, 1);
   const goalie = goaliePlayer.defense * 0.7 + goaliePlayer.IQ * 0.3;
-  const faceoff = average(faceoffPlayers.map((p) => p.passing * 0.15 + p.speed * 0.2 + p.discipline * 0.2 + p.overall * 0.45));
-  const discipline = average(roster.map((p) => p.discipline));
+  const faceoff = foSum / Math.max(faceoffCount, 1);
+  const discipline = disSum / Math.max(roster.length, 1);
 
   return { offense, defense, goalie, faceoff, discipline, attackers, middies, goaliePlayer };
 }
@@ -70,9 +96,13 @@ function clockForPossession(pos: number, total: number): { quarter: number; time
 }
 
 function weightedPlayerForGoal(rng: () => number, ratings: TeamRatings): Player {
-  const core = [...ratings.attackers, ...ratings.middies];
-  if (core.length === 0) return ratings.goaliePlayer;
-  return pickOne(rng, core);
+  const total = ratings.attackers.length + ratings.middies.length;
+  if (total === 0) return ratings.goaliePlayer;
+  const index = randInt(rng, 0, total - 1);
+  if (index < ratings.attackers.length) {
+    return ratings.attackers[index];
+  }
+  return ratings.middies[index - ratings.attackers.length];
 }
 
 export function simulateGame(
