@@ -1,4 +1,4 @@
-import { GameSummary, TopPerformer } from '../types/sim';
+import type { GameSummary, TopPerformer } from '../types/sim.ts';
 
 export interface GameRecap {
   gameId: string;
@@ -28,14 +28,26 @@ export function buildGameRecap(game: GameSummary, awayName: string, homeName: st
 
   let keyEdge = `${winnerName} controlled the details.`;
   if (Math.abs(foEdge) >= 8) {
-    const team = foEdge > 0 ? homeName : awayName;
-    keyEdge = `${team} dominated faceoffs (${game.teamStatsAway.faceoffPct}-${game.teamStatsHome.faceoffPct}).`;
+    const isHome = foEdge > 0;
+    const team = isHome ? homeName : awayName;
+    const stats = isHome
+      ? `${game.teamStatsHome.faceoffPct}-${game.teamStatsAway.faceoffPct}`
+      : `${game.teamStatsAway.faceoffPct}-${game.teamStatsHome.faceoffPct}`;
+    keyEdge = `${team} dominated faceoffs (${stats}).`;
   } else if (Math.abs(gbEdge) >= 4) {
-    const team = gbEdge > 0 ? homeName : awayName;
-    keyEdge = `${team} won the ground-ball battle (${game.teamStatsAway.groundBalls}-${game.teamStatsHome.groundBalls}).`;
+    const isHome = gbEdge > 0;
+    const team = isHome ? homeName : awayName;
+    const stats = isHome
+      ? `${game.teamStatsHome.groundBalls}-${game.teamStatsAway.groundBalls}`
+      : `${game.teamStatsAway.groundBalls}-${game.teamStatsHome.groundBalls}`;
+    keyEdge = `${team} won the ground-ball battle (${stats}).`;
   } else if (Math.abs(toEdge) >= 3) {
-    const team = toEdge > 0 ? homeName : awayName;
-    keyEdge = `${team} protected possession with fewer turnovers (${game.teamStatsAway.turnovers}-${game.teamStatsHome.turnovers}).`;
+    const isHomeWinner = toEdge > 0;
+    const team = isHomeWinner ? homeName : awayName;
+    const stats = isHomeWinner
+      ? `${game.teamStatsHome.turnovers}-${game.teamStatsAway.turnovers}`
+      : `${game.teamStatsAway.turnovers}-${game.teamStatsHome.turnovers}`;
+    keyEdge = `${team} protected possession with fewer turnovers (${stats}).`;
   }
 
   const mvp =
