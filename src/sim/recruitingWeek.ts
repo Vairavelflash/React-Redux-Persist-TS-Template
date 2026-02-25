@@ -50,7 +50,11 @@ export function simulateRecruitingWeek(
     let weeklyGain = 0;
 
     if (hours > 0) {
-      const baseGain = hours * 1.5 + recruit.stars * 0.8 + (rng() * 4 - 2);
+      // Tuned down constants:
+      // Hours: 0.5 per hour (20 hours = 10 pts)
+      // Stars: 0.2 per star (5 stars = 1 pt)
+      // Random: -1 to +1
+      const baseGain = hours * 0.5 + recruit.stars * 0.2 + (rng() * 2 - 1);
 
       let pitchBonus = 0;
       if (activePitch) {
@@ -58,8 +62,14 @@ export function simulateRecruitingWeek(
         const importanceMult = getImportanceMultiplier(motivation?.importance);
         const gradeMult = getGradeMultiplier(pitchGrade);
 
-        // Bonus is applied to a portion of the base gain or as additive
-        pitchBonus = (baseGain * 0.5) * (importanceMult * gradeMult - 1);
+        // Bonus logic:
+        // If Grade is A+ (1.5) and Importance High (1.5), mult is 2.25. (Bonus +125%)
+        // If Grade is F (0.5) and Importance High (1.5), mult is 0.75. (Penalty -25%)
+
+        // Base bonus is additive to ensure impact even with low hours?
+        // Or multiplicative? Multiplicative scales better with effort.
+
+        pitchBonus = baseGain * (importanceMult * gradeMult - 1);
       }
 
       weeklyGain = Math.max(0, Math.round(baseGain + pitchBonus));

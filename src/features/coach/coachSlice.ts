@@ -34,6 +34,7 @@ export interface CoachState {
   weeklyHoursByRecruitId: Record<string, number>;
   activePitchesByRecruitId: Record<string, RecruitingPitch>;
   interestByRecruitId: Record<string, number>;
+  interestChangeByRecruitId: Record<string, number>;
 }
 
 const initialState: CoachState = {
@@ -54,6 +55,7 @@ const initialState: CoachState = {
   weeklyHoursByRecruitId: {},
   activePitchesByRecruitId: {},
   interestByRecruitId: {},
+  interestChangeByRecruitId: {},
 };
 
 const coachSlice = createSlice({
@@ -86,19 +88,27 @@ const coachSlice = createSlice({
         state.recruitPool = generateRecruitPool(action.payload.seed);
         state.boardRecruitIds = [];
         state.weeklyHoursByRecruitId = {};
+        state.activePitchesByRecruitId = {};
         state.interestByRecruitId = {};
+        state.interestChangeByRecruitId = {};
         state.recruitingWeekIndex = 0;
     },
-    addRecruitToBoard: (state, action: PayloadAction<string>) => {
-        if (!state.boardRecruitIds.includes(action.payload) && state.boardRecruitIds.length < 25) {
-            state.boardRecruitIds.push(action.payload);
-            // Default 1 hour? Or 0
-            state.weeklyHoursByRecruitId[action.payload] = 0;
+    addRecruitToBoard: (state, action: PayloadAction<{ recruitId: string; startingInterest: number }>) => {
+        if (!state.boardRecruitIds.includes(action.payload.recruitId) && state.boardRecruitIds.length < 25) {
+            state.boardRecruitIds.push(action.payload.recruitId);
+            state.weeklyHoursByRecruitId[action.payload.recruitId] = 0;
+            state.interestByRecruitId[action.payload.recruitId] = action.payload.startingInterest;
+            state.interestChangeByRecruitId[action.payload.recruitId] = 0;
         }
     },
     removeRecruitFromBoard: (state, action: PayloadAction<string>) => {
         state.boardRecruitIds = state.boardRecruitIds.filter(id => id !== action.payload);
         delete state.weeklyHoursByRecruitId[action.payload];
+        delete state.activePitchesByRecruitId[action.payload];
+        delete state.interestChangeByRecruitId[action.payload];
+        // Keep interest in case they are re-added? Or clear it.
+        // Clearing it makes sense to "reset" progress if dropped, though maybe harsh.
+        delete state.interestByRecruitId[action.payload];
     },
     setRecruitHours: (state, action: PayloadAction<{ recruitId: string; hours: number }>) => {
         const { recruitId, hours } = action.payload;
@@ -131,6 +141,8 @@ const coachSlice = createSlice({
 
         // Apply interest updates
         Object.entries(action.payload.interestUpdates).forEach(([recruitId, interest]) => {
+            const current = state.interestByRecruitId[recruitId] || 0;
+            state.interestChangeByRecruitId[recruitId] = interest - current;
             state.interestByRecruitId[recruitId] = interest;
         });
 

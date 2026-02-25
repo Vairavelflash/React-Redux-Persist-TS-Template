@@ -64,10 +64,11 @@ function CoachCareerPage() {
     .map((recruit) => {
       const fit = selectedTeam ? estimateRecruitFit(recruit, selectedTeam) : 0;
       const hours = coach.weeklyHoursByRecruitId[recruit.id] ?? 0;
-      const interest = coach.interestByRecruitId[recruit.id] ?? Math.min(100, Math.round(fit * 0.55 + hours * 2.4 + recruit.stars * 5));
+      const interest = coach.interestByRecruitId[recruit.id] ?? 0;
+      const change = coach.interestChangeByRecruitId[recruit.id] ?? 0;
       const activePitch = coach.activePitchesByRecruitId[recruit.id];
       const pitchGrade = selectedTeam && activePitch ? getTeamPitchGrade(selectedTeam, activePitch, recruit) : '-';
-      return { recruit, hours, interest, activePitch, pitchGrade };
+      return { recruit, fit, hours, interest, change, activePitch, pitchGrade };
     })
     .sort((a, b) => b.interest - a.interest);
 
@@ -86,6 +87,15 @@ function CoachCareerPage() {
 
   if (coach.onboardingStep !== 'READY' || !coach.profile || !coach.selectedTeamId) {
     return <Navigate to="/career/setup" replace />;
+  }
+
+  function onAdd(recruit: typeof visibleRecruits[0]) {
+    if (selectedTeam) {
+        const fit = estimateRecruitFit(recruit, selectedTeam);
+        // Initial interest formula: roughly Fit * 0.6 + Stars bonus
+        const startingInterest = Math.min(60, Math.round(fit * 0.6 + recruit.stars * 2));
+        dispatch(addRecruitToBoard({ recruitId: recruit.id, startingInterest }));
+    }
   }
 
   function onHoursChange(recruitId: string, nextHours: number): void {
@@ -251,7 +261,7 @@ function CoachCareerPage() {
                         ) : (
                           <button
                             type="button"
-                            onClick={() => dispatch(addRecruitToBoard(recruit.id))}
+                            onClick={() => onAdd(recruit)}
                             disabled={!selectedTeam || boardSet.size >= 25 || isCommittedElsewhere}
                           >
                             Add
@@ -284,7 +294,7 @@ function CoachCareerPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {boardRows.map(({ recruit, interest, activePitch, pitchGrade }) => (
+                  {boardRows.map(({ recruit, interest, change, activePitch, pitchGrade }) => (
                     <tr key={recruit.id}>
                       <td>
                         <div style={{ fontWeight: 'bold' }}>{recruit.name}</div>
@@ -314,7 +324,14 @@ function CoachCareerPage() {
                         <div className="interestMeterWrap">
                           <div className="interestMeterBar" style={{ width: `${interest}%` }} />
                         </div>
-                        <span className="meterLabel">{interest}</span>
+                        <div className="meterLabel">
+                            {interest}
+                            {change !== 0 ? (
+                                <span style={{ color: change > 0 ? 'green' : 'red', fontSize: '0.8em', marginLeft: 4 }}>
+                                    ({change > 0 ? '+' : ''}{change})
+                                </span>
+                            ) : null}
+                        </div>
                       </td>
                       <td>
                         <input
