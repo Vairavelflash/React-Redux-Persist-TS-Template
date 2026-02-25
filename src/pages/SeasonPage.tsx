@@ -93,7 +93,7 @@ function SeasonPage() {
                 {away?.schoolName} at {home?.schoolName}{' '}
                 {result ? (
                   <strong>
-                    — Final {result.awayScore}-{result.homeScore}
+                    — Final {result.scoreB}-{result.scoreA}
                   </strong>
                 ) : (
                   <span>— Scheduled</span>

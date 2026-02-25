@@ -1,52 +1,7 @@
-import { Player, Team } from '../types/sim';
+import { GameResult, Player, PlayerGameStats, Tactics, Team, TeamGameStats, TeamSimInput } from '../types/sim';
 import { makeRng, normalish, pickOne, randInt } from './rng';
 
-export interface Tactics {
-  tempo: 'slow' | 'normal' | 'fast';
-  rideClear: 'conservative' | 'balanced' | 'aggressive';
-  slideAggression: 'early' | 'normal' | 'late';
-}
-
-export interface TeamSimInput {
-  team: Team;
-  roster: Player[];
-}
-
-export interface TeamGameStats {
-  teamId: string;
-  goals: number;
-  shots: number;
-  saves: number;
-  turnovers: number;
-  groundBalls: number;
-  penalties: number;
-  faceoffPct: number;
-}
-
-export interface PlayerGameStats {
-  playerId: string;
-  teamId: string;
-  name: string;
-  position: Player['position'];
-  goals: number;
-  assists: number;
-  saves: number;
-}
-
-export interface GameResult {
-  seed: number;
-  teamAId: string;
-  teamBId: string;
-  teamAName: string;
-  teamBName: string;
-  scoreA: number;
-  scoreB: number;
-  statsA: TeamGameStats;
-  statsB: TeamGameStats;
-  topPlayersA: PlayerGameStats[];
-  topPlayersB: PlayerGameStats[];
-  highlights: string[];
-}
+export type { Tactics, TeamSimInput, TeamGameStats, PlayerGameStats, GameResult };
 
 interface TeamRatings {
   offense: number;

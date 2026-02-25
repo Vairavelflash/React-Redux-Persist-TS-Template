@@ -5,6 +5,12 @@ import ConferencesPage from './pages/ConferencesPage';
 import TeamPage from './pages/TeamPage';
 import RankingsPage from './pages/RankingsPage';
 import ExhibitionPage from './pages/ExhibitionPage';
+import CoachCareerSetupPage from './pages/CoachCareerSetupPage';
+import CoachCareerPage from './pages/CoachCareerPage';
+import SeasonPage from './pages/SeasonPage';
+import SeasonStandingsPage from './pages/SeasonStandingsPage';
+import SeasonWeekPage from './pages/SeasonWeekPage';
+import PlayoffsPage from './pages/PlayoffsPage';
 import './App.css';
 
 function App() {
@@ -18,6 +24,12 @@ function App() {
         { path: 'team/:id', element: <TeamPage /> },
         { path: 'rankings', element: <RankingsPage /> },
         { path: 'exhibition', element: <ExhibitionPage /> },
+        { path: 'career', element: <CoachCareerPage /> },
+        { path: 'career/setup', element: <CoachCareerSetupPage /> },
+        { path: 'season', element: <SeasonPage /> },
+        { path: 'season/standings', element: <SeasonStandingsPage /> },
+        { path: 'season/week/:weekIndex', element: <SeasonWeekPage /> },
+        { path: 'playoffs', element: <PlayoffsPage /> },
       ],
     },
   ]);
