@@ -7,6 +7,7 @@ import {
   removeRecruitFromBoard,
   setRecruitHours,
 } from '../features/coach/coachSlice';
+import { selectTeamRecords } from '../features/season/seasonSlice';
 import { estimateRecruitFit } from '../sim/recruiting';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 
@@ -17,6 +18,7 @@ function CoachCareerPage() {
   const teams = useAppSelector((state) => state.league.teams);
   const coach = useAppSelector((state) => state.coach);
   const season = useAppSelector((state) => state.season);
+  const recordsByTeamId = useAppSelector(selectTeamRecords);
 
   const [search, setSearch] = useState('');
   const [positionFilter, setPositionFilter] = useState('ALL');
@@ -52,7 +54,7 @@ function CoachCareerPage() {
 
 
   const userRecord = coach.selectedTeamId
-    ? season.recordsByTeamId[coach.selectedTeamId] ?? { wins: 0, losses: 0, confWins: 0, confLosses: 0, pointsFor: 0, pointsAgainst: 0 }
+    ? recordsByTeamId[coach.selectedTeamId] ?? { wins: 0, losses: 0, confWins: 0, confLosses: 0, pointsFor: 0, pointsAgainst: 0 }
     : { wins: 0, losses: 0, confWins: 0, confLosses: 0, pointsFor: 0, pointsAgainst: 0 };
   const pointDiff = userRecord.pointsFor - userRecord.pointsAgainst;
   const seasonStatusText =

@@ -79,10 +79,10 @@ function SeasonWeekPage() {
                 <tr key={game.id}>
                   <td>{away?.schoolName}</td>
                   <td>{home?.schoolName}</td>
-                  <td>{result ? `${result.awayScore}-${result.homeScore}` : 'Scheduled'}</td>
-                  <td>{result ? `${result.teamStatsAway.shots}-${result.teamStatsHome.shots}` : '-'}</td>
-                  <td>{result ? `${result.teamStatsAway.turnovers}-${result.teamStatsHome.turnovers}` : '-'}</td>
-                  <td>{result ? `${result.teamStatsAway.faceoffPct}-${result.teamStatsHome.faceoffPct}` : '-'}</td>
+                  <td>{result ? `${result.scoreB}-${result.scoreA}` : 'Scheduled'}</td>
+                  <td>{result ? `${result.statsB.shots}-${result.statsA.shots}` : '-'}</td>
+                  <td>{result ? `${result.statsB.turnovers}-${result.statsA.turnovers}` : '-'}</td>
+                  <td>{result ? `${result.statsB.faceoffPct}-${result.statsA.faceoffPct}` : '-'}</td>
                 </tr>
               );
             })}
