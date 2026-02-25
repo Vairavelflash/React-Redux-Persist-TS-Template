@@ -24,8 +24,8 @@ function SeasonWeekPage() {
     })
     .sort((a, b) => {
       if (sortBy === 'score') {
-        const aTotal = (a.result?.homeScore ?? 0) + (a.result?.awayScore ?? 0);
-        const bTotal = (b.result?.homeScore ?? 0) + (b.result?.awayScore ?? 0);
+        const aTotal = (a.result?.scoreA ?? 0) + (a.result?.scoreB ?? 0);
+        const bTotal = (b.result?.scoreA ?? 0) + (b.result?.scoreB ?? 0);
         return bTotal - aTotal;
       }
 
