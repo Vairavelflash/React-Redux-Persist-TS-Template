@@ -72,6 +72,8 @@ export interface PlayerGameStats {
   saves: number;
 }
 
+export type TopPerformer = PlayerGameStats;
+
 export interface GameResult {
   id?: string;
   weekIndex?: number;
