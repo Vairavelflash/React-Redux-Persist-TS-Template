@@ -1,14 +1,13 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  resetSeason,
   selectSeasonHasStarted,
   selectSeasonSummary,
   selectWeekGames,
   simCurrentWeek,
   simSeason,
   startNewSeason,
-  startPlayoffs,
+  resetSeason,
 } from '../features/season/seasonSlice';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 
@@ -20,69 +19,28 @@ function SeasonPage() {
   const hasSeason = useAppSelector(selectSeasonHasStarted);
   const teams = useAppSelector((state) => state.league.teams);
   const conferences = useAppSelector((state) => state.league.conferences);
-  const coach = useAppSelector((state) => state.coach);
 
   const currentWeekForList = Math.min(summary.currentWeekIndex, 11);
   const weekSelector = useMemo(() => selectWeekGames(currentWeekForList), [currentWeekForList]);
   const thisWeekGames = useAppSelector(weekSelector);
 
-  const teamById = useMemo(() => new Map(teams.map((team) => [team.id, team])), [teams]);
-
   const filteredGames = thisWeekGames.filter(({ game }) => {
     if (conferenceFilter === 'ALL') return true;
-    const home = teamById.get(game.homeTeamId);
-    const away = teamById.get(game.awayTeamId);
+    const home = teams.find((t) => t.id === game.homeTeamId);
+    const away = teams.find((t) => t.id === game.awayTeamId);
     return home?.conferenceId === conferenceFilter || away?.conferenceId === conferenceFilter;
   });
-  const visibleGames = filteredGames.slice(0, 10);
+
+  const teamById = useMemo(() => new Map(teams.map((team) => [team.id, team])), [teams]);
 
   return (
     <section>
-      <div className="sectionHeaderRow">
-        <h2>Season Command Center</h2>
-        <div className="chipRow">
-          <span className="statusChip">WEEKLY OPS</span>
-          <span className="statusChip statusChipSoft">{coach.onboardingStep === 'READY' ? 'CAREER LINKED' : 'CAREER NOT SET'}</span>
-        </div>
-      </div>
-
+      <h2>Season Dashboard</h2>
       <div className="card">
-        <div className="careerStatsGrid">
-          <div className="statTile">
-            <span className="mutedText">Phase</span>
-            <strong>{summary.phase}</strong>
-          </div>
-          <div className="statTile">
-            <span className="mutedText">Week</span>
-            <strong>{Math.min(summary.currentWeekIndex + 1, 12)} / 12</strong>
-          </div>
-          <div className="statTile">
-            <span className="mutedText">Completed Weeks</span>
-            <strong>{summary.completedWeeks}</strong>
-          </div>
-          <div className="statTile">
-            <span className="mutedText">Season Seed</span>
-            <strong>{summary.seasonSeed}</strong>
-          </div>
-          <div className="statTile">
-            <span className="mutedText">Coach Career</span>
-            <strong>{coach.onboardingStep === 'READY' ? 'Active' : 'Setup Needed'}</strong>
-          </div>
-          <div className="statTile">
-            <span className="mutedText">Recruiting Week</span>
-            <strong>{coach.recruitingWeekIndex + 1}</strong>
-          </div>
-        </div>
-
         <div className="seedRow">
           <label>
             Season Seed
-            <input
-              type="number"
-              min={0}
-              value={seedInput}
-              onChange={(event) => setSeedInput(Math.max(0, Number(event.target.value) || 0))}
-            />
+            <input type="number" value={seedInput} onChange={(event) => setSeedInput(Number(event.target.value) || 0)} />
           </label>
           <button type="button" onClick={() => setSeedInput(Math.floor(Math.random() * 1_000_000_000))}>
             Random Seed
@@ -96,22 +54,24 @@ function SeasonPage() {
           <button type="button" onClick={() => dispatch(simSeason())} disabled={!hasSeason || summary.currentWeekIndex >= 12}>
             Sim Season
           </button>
-          <button type="button" onClick={() => dispatch(startPlayoffs())} disabled={summary.phase !== 'PLAYOFF'}>
-            Start Playoffs
-          </button>
           <button type="button" onClick={() => dispatch(resetSeason())}>
             Reset
           </button>
         </div>
 
-        <p className="mutedText">
-          <Link to="/season/standings">Standings</Link> · <Link to="/rankings">Rankings</Link> · <Link to="/playoffs">Playoffs</Link> ·{' '}
-          <Link to={`/season/week/${Math.min(summary.currentWeekIndex, 11)}`}>Current Week View</Link> · <Link to="/career">Coach Career</Link>
+        <p>
+          Phase: <strong>{summary.phase}</strong> · Week: <strong>{Math.min(summary.currentWeekIndex + 1, 12)} / 12</strong> · Completed Weeks:{' '}
+          <strong>{summary.completedWeeks}</strong> · Seed: <strong>{summary.seasonSeed}</strong>
+        </p>
+
+        <p>
+          <Link to="/season/standings">Go to Standings</Link> ·{' '}
+          <Link to={`/season/week/${Math.min(summary.currentWeekIndex, 11)}`}>Go to Current Week View</Link>
         </p>
       </div>
 
       <div className="card">
-        <h3>This Week&apos;s Games</h3>
+        <h3>This Week's Games</h3>
         <label>
           Filter by conference
           <select value={conferenceFilter} onChange={(event) => setConferenceFilter(event.target.value)}>
@@ -124,11 +84,8 @@ function SeasonPage() {
           </select>
         </label>
 
-        <p className="mutedText">Showing {visibleGames.length} of {filteredGames.length} games for this filter.</p>
-
-        <ul className="plainList compactList">
-          {filteredGames.length === 0 ? <li className="mutedText">No games match this conference filter for the selected week.</li> : null}
-          {visibleGames.map(({ game, result }) => {
+        <ul>
+          {filteredGames.slice(0, 10).map(({ game, result }) => {
             const home = teamById.get(game.homeTeamId);
             const away = teamById.get(game.awayTeamId);
             return (

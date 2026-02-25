@@ -8,7 +8,6 @@ import {
   setRecruitHours,
 } from '../features/coach/coachSlice';
 import { estimateRecruitFit } from '../sim/recruiting';
-import { runCareerWeeklyCycle } from '../features/coach/careerThunks';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 
 const WEEKLY_HOURS_CAP = 120;
@@ -65,15 +64,6 @@ function CoachCareerPage() {
     return <Navigate to="/career/setup" replace />;
   }
 
-
-  const canAdvanceRecruiting = coach.recruitPool.length > 0 && coach.boardRecruitIds.length > 0;
-  const canRunWeeklyCycle = season.phase === 'REGULAR' && season.scheduleByWeek.length === 12 && season.currentWeekIndex < 12 && canAdvanceRecruiting;
-
-  function onRunWeeklyCycle(): void {
-    if (!canRunWeeklyCycle) return;
-    void dispatch(runCareerWeeklyCycle());
-  }
-
   function onHoursChange(recruitId: string, nextHours: number): void {
     const current = coach.weeklyHoursByRecruitId[recruitId] ?? 0;
     const requested = Math.max(0, Math.min(20, nextHours));
@@ -84,12 +74,9 @@ function CoachCareerPage() {
 
   return (
     <section>
-      <div className="sectionHeaderRow">
-        <h2>Coach Career: Recruiting</h2>
-        <span className="statusChip">RECRUITING OPS</span>
-      </div>
+      <h2>Coach Career: Recruiting</h2>
       <p className="mutedText">{coach.profile.name} · {selectedTeam?.schoolName} {selectedTeam?.nickname} · {coach.careerTier}</p>
-      <p className="mutedText">Need to change coach identity or program? <Link to="/career/setup">Return to setup</Link>. Quick jump: <Link to="/season">Season</Link> · <Link to="/rankings">Rankings</Link>.</p>
+      <p className="mutedText">Need to change coach identity or program? <Link to="/career/setup">Return to setup</Link>.</p>
 
       <div className="card">
         <h3>Program Snapshot</h3>
@@ -137,11 +124,8 @@ function CoachCareerPage() {
           <button type="button" onClick={() => dispatch(initializeRecruitingBoard({ seed: seedInput }))}>
             Generate Recruiting Class
           </button>
-          <button type="button" onClick={() => dispatch(advanceRecruitingWeek())} disabled={!canAdvanceRecruiting}>
+          <button type="button" onClick={() => dispatch(advanceRecruitingWeek())} disabled={coach.recruitPool.length === 0 || coach.boardRecruitIds.length === 0}>
             Advance Recruiting Week
-          </button>
-          <button type="button" onClick={onRunWeeklyCycle} disabled={!canRunWeeklyCycle}>
-            Run Weekly Cycle
           </button>
         </div>
         <p className="mutedText">Board size: {coach.boardRecruitIds.length} / 25 · Pool: {coach.recruitPool.length} prospects · Recruiting Week {coach.recruitingWeekIndex + 1}</p>
@@ -149,7 +133,6 @@ function CoachCareerPage() {
           Weekly recruiting hours: {totalHours} / {WEEKLY_HOURS_CAP} {hoursRemaining >= 0 ? `(remaining ${hoursRemaining})` : '(over budget)'}
         </p>
         {coach.boardRecruitIds.length === 0 ? <p className="mutedText">Add at least one recruit to your board before advancing the week.</p> : null}
-        {season.scheduleByWeek.length === 0 ? <p className="mutedText">Start a season in the Season Command Center to enable the combined weekly cycle.</p> : null}
 
         <div className="careerStatsGrid">
           <div className="statTile">

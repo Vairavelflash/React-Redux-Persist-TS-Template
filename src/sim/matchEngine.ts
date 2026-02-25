@@ -1,5 +1,11 @@
-import { Player, Tactics, Team } from '../types/sim';
+import { Player, Team } from '../types/sim';
 import { makeRng, normalish, pickOne, randInt } from './rng';
+
+export interface Tactics {
+  tempo: 'slow' | 'normal' | 'fast';
+  rideClear: 'conservative' | 'balanced' | 'aggressive';
+  slideAggression: 'early' | 'normal' | 'late';
+}
 
 export interface TeamSimInput {
   team: Team;

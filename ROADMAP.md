@@ -1,202 +1,247 @@
-# College Lacrosse Head Coach Sim — Roadmap (Revamp)
+# College Lacrosse Head Coach Sim — Roadmap
 
-## Vision
-Build a deterministic, web-based college lacrosse sim with fictionalized NCAA-ish programs, a 128-team league, full regular season flow, weekly rankings/projections, and a 12-team playoff to crown a champion.
-
----
-
-## Current Reality Snapshot
-
-### ✅ Implemented now
-- [x] 128 teams + 16 conferences loaded from JSON.
-- [x] Conference and Team browsing pages.
-- [x] Deterministic roster generation.
-- [x] Exhibition game sim (seeded) with box score/highlights.
-- [x] 12-week regular-season scheduler (64 games/week).
-- [x] Week and full-season simulation.
-- [x] Standings (conference + overall).
-- [x] Rankings page with Top 25 + Top 12 + resume metrics (SOS, quality wins, bad losses, next four out).
-- [x] Playoff flow scaffolded into UI and season state (start playoffs, simulate rounds, champion).
-- [x] Dark mode toggle and persisted UI preference.
-
-### ⚠️ Functional but still rough
-- [ ] Playoff UX is list-style and minimal (not a visual bracket yet).
-- [ ] Selection logic is deterministic but simplified (no nuanced committee profile).
-- [ ] Week detail exists but still basic (panel, not rich game recap).
-
-### ⏳ Not started
-- [~] Recruiting + offseason progression (foundation started; weekly battles/signing day pending).
-- [ ] Coach systems (fatigue/injuries/practice impact).
-- [ ] Narrative systems (news, rivalries, job security).
-- [ ] Full settings/perf/accessibility pass.
+## A) Project Vision
+Build a deterministic, web-based college lacrosse coaching sim with NCAA-ish realism and fully fictionalized schools/branding. Core targets are a 128-team universe (16x8), a 12-game regular season, weekly Top 25 + Top 12 projections, and a 12-team playoff format (1–4 byes, fixed bracket rounds).
 
 ---
 
-## Milestone Board (Updated)
+## B) Current Status
 
-## M1 — League Foundation
-**Status:** ✅ Done
+### Implemented
+- [x] 128-team league dataset with 16 conferences in JSON.
+- [x] Conference/team browsing pages and routing.
+- [x] Deterministic roster generation (seeded).
+- [x] Deterministic exhibition mode (team selection, tactics, seed, sim output).
+- [x] Regular-season schedule generation (12 weeks, 64 games/week).
+- [x] Weekly season simulation + season simulation flow.
+- [x] Standings pages (conference + overall) and week game views.
+- [x] Redux persistence configured for season + coach slices only.
 
-- [x] Team/conference data model
-- [x] League browsing routes
-- [x] Team roster summaries
+### Partially Implemented
+- [ ] Season progression phase transitions beyond regular season are scaffolded but not fully playable.
+- [ ] Week/game detail depth is compact; no rich drill-down UX yet.
+- [ ] Rankings page is a placeholder.
 
-**Key modules**
+### Not Started
+- [ ] Top 25 ranking engine and Top 12 playoff projection.
+- [ ] Playoff selection and bracket rounds.
+- [ ] Recruiting + offseason systems.
+- [ ] Deeper coach management systems (fatigue, injuries, practice planning).
+- [ ] Narrative/flavor systems (news, rivalries, job security).
+
+---
+
+## C) Milestones
+
+## M1 — League Data + Browsing UI
+- [x] Add 128 teams and 16 conferences.
+- [x] Add Conferences and Team pages.
+- [x] Show roster quality summaries.
+
+**Key files/modules**
 - `src/data/teams128.json`
 - `src/features/league/leagueSlice.ts`
-- `src/pages/ConferencesPage.tsx`, `src/pages/TeamPage.tsx`
+- `src/pages/ConferencesPage.tsx`
+- `src/pages/TeamPage.tsx`
 - `src/sim/generateRoster.ts`
 
----
+**Definition of Done**
+- 16 conference groups render with 8 teams each.
+- Team detail page loads and includes deterministic roster summary.
 
-## M2 — Match Engine + Exhibition
-**Status:** ✅ Done
+**Nice-to-haves**
+- Conference filters/search.
+- Team comparison page.
 
-- [x] Seeded RNG and deterministic game simulation
-- [x] Exhibition controls (teams/tactics/seed)
-- [x] Team/player stats + highlights output
+## M2 — Exhibition Game + Match Engine
+- [x] Seeded match simulation with tactics inputs.
+- [x] Final score + team box stats + top players + highlights.
 
-**Key modules**
+**Key files/modules**
 - `src/sim/rng.ts`
 - `src/sim/matchEngine.ts`
 - `src/features/exhibition/exhibitionSlice.ts`
 - `src/pages/ExhibitionPage.tsx`
 
----
+**Definition of Done**
+- Same teams+tactics+seed => identical output.
+- Sim is effectively instant in UI.
 
-## M3 — Regular Season Loop
-**Status:** ✅ Done
+**Nice-to-haves**
+- Overtime handling.
+- More event variety and richer player stat lines.
 
-- [x] Full 12-week schedule generation
-- [x] Week + season simulation
-- [x] Compact persisted season results/records
-- [x] Week view + standings pages
+## M3 — Season Schedule + Sim Week + Standings
+- [x] Generate full 12-week schedule.
+- [x] Sim current week and full season.
+- [x] Store compact game summaries and team records.
+- [x] Week view and standings pages.
 
-**Key modules**
+**Key files/modules**
 - `src/sim/schedule.ts`
 - `src/sim/seasonSim.ts`
 - `src/features/season/seasonSlice.ts`
-- `src/pages/SeasonPage.tsx`, `src/pages/SeasonWeekPage.tsx`, `src/pages/SeasonStandingsPage.tsx`
+- `src/pages/SeasonPage.tsx`
+- `src/pages/SeasonWeekPage.tsx`
+- `src/pages/SeasonStandingsPage.tsx`
 
----
+**Definition of Done**
+- 12 weeks, 64 games/week, one game per team/week, no duplicate matchups.
+- Sim advances and standings update correctly.
+- Refresh restores season progress.
 
-## M4 — Rankings + Projection
-**Status:** ✅ v1 shipped
+**Nice-to-haves**
+- Head-to-head tie-breakers.
+- Better schedule balancing heuristics.
 
-- [x] Top 25 rankings
-- [x] Top 12 playoff projection
-- [x] Resume metrics (SOS/QW/BL)
-- [x] Next Four Out
+## M4 — Rankings (Top 25 + Top 12 Projection)
+- [ ] Compute weekly Top 25 rankings.
+- [ ] Compute Top 12 playoff projection.
+- [ ] Replace rankings placeholder page.
 
-**Remaining enhancements**
-- [ ] Better SOS/quality-win model
-- [ ] Head-to-head/tiered tiebreak stack
-- [ ] Resume explanation UI per team
-
-**Key modules**
-- `src/sim/rankings.ts`
-- `src/features/season/seasonSlice.ts`
+**Key files/modules**
+- `src/sim/rankings.ts` (planned)
+- `src/features/season/seasonSlice.ts` (selectors/derived ranking state)
 - `src/pages/RankingsPage.tsx`
 
----
+**Definition of Done**
+- Rankings update after each simulated week.
+- Rankings are deterministic for a fixed seed and game results.
 
-## M5 — 12-Team Playoff
-**Status:** ✅ v1 shipped / 🛠️ polish needed
+**Nice-to-haves**
+- Strength-of-schedule and quality-win metrics.
+- “Next four out” bubble list.
 
-- [x] Seeded field from Top 12 projection
-- [x] Round simulation through champion
-- [x] Season phase reaches `DONE`
+## M5 — 12-Team Playoff Bracket
+- [ ] Selection Sunday flow.
+- [ ] Seed 1–4 byes.
+- [ ] Round 1 pairings: 5v12, 6v11, 7v10, 8v9.
+- [ ] Fixed bracket advancement until champion.
 
-**Remaining enhancements**
-- [ ] Bracket visualization component (instead of list blocks)
-- [ ] Selection Sunday page/state snapshot
-- [ ] Round metadata (venue/home-field) and richer summaries
-
-**Key modules**
-- `src/sim/playoffs.ts`
+**Key files/modules**
+- `src/sim/rankings.ts` / `src/sim/playoffs.ts` (planned)
 - `src/features/season/seasonSlice.ts`
-- `src/pages/PlayoffsPage.tsx`
+- `src/pages/PlayoffBracketPage.tsx` (planned)
 
----
+**Definition of Done**
+- Bracket generated from final regular-season projection/selection.
+- Each round simulates and persists results.
 
-## M6 — Coach Depth
-**Status:** 🛠️ Foundation started
+**Nice-to-haves**
+- Home-field logic.
+- Upset probability overlays.
 
-- [ ] Practice planning
-- [ ] Fatigue/recovery
-- [ ] Injury modeling
+## M6 — Coach Layer (practice/fatigue/injuries)
+- [ ] Team-level practice plan choices.
+- [ ] Player/team fatigue and recovery.
+- [ ] Injury events and availability effects.
 
-**Definition of done**
-- Coach decisions measurably affect game outputs.
+**Key files/modules**
+- `src/features/coach/coachSlice.ts`
+- `src/sim/matchEngine.ts`
+- `src/sim/seasonSim.ts`
 
----
+**Definition of Done**
+- Coach choices have measurable sim impact.
+- State persists and is visible in UI.
+
+**Nice-to-haves**
+- Training focus per position group.
+- Medical staff quality modifiers.
 
 ## M7 — Recruiting + Offseason
-**Status:** 🛠️ Foundation started
+- [ ] Recruit generation and board management.
+- [ ] Signing/commitment flow.
+- [ ] Graduation/roster turnover progression.
 
-- [ ] Recruit generation + board workflows
-- [ ] Signing logic
-- [ ] Graduation/roster turnover
+**Key files/modules**
+- `src/data/recruits*.json` (planned)
+- `src/features/recruiting/*` (planned)
+- `src/sim/offseason.ts` (planned)
+
+**Definition of Done**
+- Offseason advances to next season with updated rosters.
+- Recruiting outcomes are deterministic and reproducible with seed.
+
+**Nice-to-haves**
+- Transfer portal.
+- Recruiting pipeline geography effects.
+
+## M8 — Flavor Systems
+- [ ] News feed and weekly storylines.
+- [ ] Rivalry game tagging.
+- [ ] Job security/coach reputation loops.
+- [ ] Program upgrade systems.
+
+**Key files/modules**
+- `src/features/ui/*`
+- `src/features/coach/*`
+- `src/pages/*` (news/profile pages planned)
+
+**Definition of Done**
+- Flavor systems read real season data and update each week.
+
+**Nice-to-haves**
+- Dynamic rivalry trophies.
+- Press conference text flavor.
+
+## M9 — Polish
+- [ ] Accessibility pass (keyboard, semantics, contrast).
+- [ ] Mobile responsiveness and compact tables.
+- [ ] Settings panel for sim speed/detail.
+- [ ] Performance hardening for 128-team workflows.
+
+**Key files/modules**
+- `src/pages/style.css`
+- page components under `src/pages/`
+- selectors in feature slices
+
+**Definition of Done**
+- Smooth UX on common viewport sizes.
+- No noticeable lag across week sim/standings/rankings pages.
+
+**Nice-to-haves**
+- Virtualized long lists.
+- Theme toggle.
 
 ---
 
-## M8 — Flavor + Immersion
-**Status:** ⏳ Not started
+## D) Data Contracts
 
-- [ ] News feed
-- [ ] Rivalry tracking
-- [ ] Job security and prestige feedback loops
-
----
-
-## M9 — Product Polish
-**Status:** 🛠️ In progress
-
-- [x] Responsive shell + dark mode
-- [ ] Accessibility pass (contrast/keyboard/semantics)
-- [ ] Performance pass for large tables/lists
-- [ ] Sim settings panel
-
----
-
-## Coach Career Plan
-- See `COACH_CAREER_ROADMAP.md` for phase-by-phase career progression and integration details.
-
-## Next Sprint Decision (What to do next)
-
-### Priority 1 — Season ↔ Career loop integration (in progress)
-- [x] Surface coach program snapshot directly in season flow and vice-versa.
-- [x] Add clear prompts when either side is incomplete (no season started / no coach setup).
-- [~] Trigger recruiting progression from season-week advancement (single action loop; UI combined action added, reducer-level orchestration pending).
-
-### Priority 2 — Recruiting competitiveness polish
-- Add lightweight CPU pressure model and signed-elsewhere cadence tuning.
-- Improve interest explanation in UI (hours + fit + momentum breakdown).
-- Add deterministic weekly story hooks for major commitments.
-
-### Priority 3 — Offseason transition scaffold
-- Add Signing Day checkpoint and class summary card.
-- Start roster turnover overlays (graduation + incoming class effect).
-- Surface Year-in-review and job security deltas.
-
-**Proposed implementation order:**
-1. Weekly season-career combined action path
-2. Recruiting race clarity and balancing
-3. Offseason/signing-day scaffolding
-
----
-
-## Data Contracts (Current)
-
-### `teams128.json`
+### `teams128.json` schema (current)
 ```json
 {
   "conferences": [{ "id": "string", "name": "string" }],
-  "teams": [{ "id": "string", "schoolName": "string", "nickname": "string", "conferenceId": "string", "region": "string", "prestige": 1 }]
+  "teams": [
+    {
+      "id": "string",
+      "schoolName": "string",
+      "nickname": "string",
+      "conferenceId": "string",
+      "region": "string",
+      "prestige": 1
+    }
+  ]
 }
 ```
 
-### `GameSummary` (compact)
+### Recruits schema (planned)
+```json
+{
+  "recruits": [
+    {
+      "id": "string",
+      "name": "string",
+      "position": "A|M|D|LSM|FO|G",
+      "stars": 2,
+      "region": "string",
+      "interestByTeamId": { "teamId": 0.5 }
+    }
+  ]
+}
+```
+
+### `GameSummary` minimal shape (current TS contract)
 ```ts
 {
   id: string;
@@ -211,24 +256,52 @@ Build a deterministic, web-based college lacrosse sim with fictionalized NCAA-is
 }
 ```
 
-### Playoff state (current)
-- Seeds 1–12
-- Rounds: `ROUND1`, `QUARTERFINAL`, `SEMIFINAL`, `FINAL`
-- Champion ID at completion
+Principle: keep season storage compact; do not persist per-possession logs for all 768 regular-season games.
 
 ---
 
-## Dev Commands
-- `npm install`
-- `npm run dev`
-- `npm run build`
-- `npm run lint`
-- `npm run preview`
+## E) Dev Commands
+Use project scripts from `package.json`:
+
+- Install dependencies: `npm install`
+- Run dev server: `npm run dev`
+- Build production bundle: `npm run build`
+- Lint: `npm run lint`
+- Preview build: `npm run preview`
 
 ---
 
-## Architecture Guardrails
-- Keep all simulation logic pure under `src/sim/`.
-- Keep league non-persisted (reload from JSON).
-- Persist user/game progress slices (`season`, `coach`, `ui`).
-- Keep long-term storage compact; derive heavy views via memoized selectors.
+## F) Code Organization
+- `src/sim/`: pure deterministic simulation functions only (no React/Redux imports).
+- `src/features/`: Redux slices/selectors/thunks.
+- `src/pages/`: route-level UI and views.
+- `src/data/`: static JSON data assets.
+- `src/types/`: shared TypeScript domain contracts.
+
+Persistence rules:
+- Persist: `season`, `coach`
+- Do not persist: `league` (reloaded from JSON)
+
+---
+
+## G) Planned UX Pages
+- [x] Conferences
+- [x] Team
+- [x] Exhibition
+- [x] Season Dashboard
+- [x] Week View
+- [x] Standings
+- [ ] Rankings (real content)
+- [ ] Playoff Bracket
+- [ ] Recruiting
+- [ ] Settings
+
+---
+
+## H) Risk & Scope Control
+- Keep simulation fast enough for instant week sim feedback.
+- Avoid storing heavy per-possession logs for every season game.
+- Keep expensive computations derived in memoized selectors.
+- Validate schedule invariants every new season generation.
+- Keep deterministic seed paths stable for debugging and reproducibility.
+- Prefer incremental feature layering (rankings -> playoff -> recruiting) to control complexity.

@@ -1,5 +1,3 @@
-export type TeamId = string;
-export type GameId = string;
 export type Position = 'A' | 'M' | 'D' | 'LSM' | 'FO' | 'G';
 
 export interface Conference {
@@ -8,7 +6,7 @@ export interface Conference {
 }
 
 export interface Team {
-  id: TeamId;
+  id: string;
   schoolName: string;
   nickname: string;
   conferenceId: string;
@@ -34,53 +32,14 @@ export interface Player extends PlayerRatings {
   overall: number;
 }
 
-export interface TeamRecord {
-  wins: number;
-  losses: number;
-  confWins: number;
-  confLosses: number;
-  pointsFor: number;
-  pointsAgainst: number;
-}
-
-export interface CompactTeamGameStats {
-  goals: number;
-  shots: number;
-  saves: number;
-  turnovers: number;
-  groundBalls: number;
-  penalties: number;
-  faceoffPct: number;
-}
-
-export interface ScheduledGame {
-  id: GameId;
-  weekIndex: number;
-  homeTeamId: TeamId;
-  awayTeamId: TeamId;
-  conferenceGame: boolean;
-}
-
-export interface TopPerformer {
-  playerId: string;
-  name: string;
-  teamId: TeamId;
-  position: Position;
-  goals: number;
-  assists: number;
-  saves: number;
-}
-
-export interface GameSummary {
-  id: GameId;
-  weekIndex: number;
-  homeTeamId: TeamId;
-  awayTeamId: TeamId;
+export interface GameResult {
+  id: string;
+  week: number;
+  homeTeamId: string;
+  awayTeamId: string;
   homeScore: number;
   awayScore: number;
-  teamStatsHome: CompactTeamGameStats;
-  teamStatsAway: CompactTeamGameStats;
-  topPerformers?: TopPerformer[];
+  played: boolean;
 }
 
 export interface RankingRow {
@@ -96,53 +55,11 @@ export interface Tactics {
   slideAggression: 'early' | 'normal' | 'late';
 }
 
-export type PlayoffRoundName = 'ROUND1' | 'QUARTERFINAL' | 'SEMIFINAL' | 'FINAL';
-
-export interface PlayoffSeed {
-  seed: number;
-  teamId: TeamId;
-}
-
-export interface PlayoffGame {
-  id: string;
-  round: PlayoffRoundName;
-  slot: number;
-  homeSeed: number;
-  awaySeed: number;
-  homeTeamId: TeamId;
-  awayTeamId: TeamId;
-  winnerTeamId: TeamId | null;
-  result: GameSummary | null;
-}
-
-export interface PlayoffState {
-  seeds: PlayoffSeed[];
-  rounds: Record<PlayoffRoundName, PlayoffGame[]>;
-  currentRound: PlayoffRoundName;
-  championTeamId: TeamId | null;
-}
-
-export type SeasonPhase = 'REGULAR' | 'PLAYOFF' | 'DONE';
-
 export interface SeasonState {
-  seasonSeed: number;
-  currentWeekIndex: number;
-  scheduleByWeek: ScheduledGame[][];
-  resultsByWeek: GameSummary[][];
-  recordsByTeamId: Record<TeamId, TeamRecord>;
-  phase: SeasonPhase;
-  playoffState?: PlayoffState | null;
-}
-
-
-export interface Recruit {
-  id: string;
-  name: string;
-  position: Position;
-  stars: 2 | 3 | 4 | 5;
-  region: string;
-  potential: number;
-  committedTeamId: TeamId | null;
+  year: number;
+  currentWeek: number;
+  gameResults: GameResult[];
+  isComplete: boolean;
 }
 
 export interface LeagueData {
