@@ -1,3 +1,5 @@
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+
 function Header() {
   const dispatch = useAppDispatch();
   const darkMode = useAppSelector((state) => state.ui.darkMode);
