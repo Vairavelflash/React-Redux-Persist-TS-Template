@@ -1,4 +1,4 @@
-import { GameResult, Player, PlayerGameStats, Tactics, Team, TeamGameStats, TeamSimInput } from '../types/sim';
+import { GameResult, Player, PlayerGameStats, Tactics, TeamGameStats, TeamSimInput } from '../types/sim';
 import { makeRng, normalish, pickOne, randInt } from './rng';
 
 export type { Tactics, TeamSimInput, TeamGameStats, PlayerGameStats, GameResult };
