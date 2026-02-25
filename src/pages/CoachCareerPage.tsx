@@ -6,12 +6,32 @@ import {
   initializeRecruitingBoard,
   removeRecruitFromBoard,
   setRecruitHours,
+  setRecruitPitch,
   WEEKLY_HOURS_CAP,
   MAX_HOURS_PER_RECRUIT,
 } from '../features/coach/coachSlice';
 import { selectTeamRecords } from '../features/season/seasonSlice';
-import { estimateRecruitFit } from '../sim/recruiting';
+import { estimateRecruitFit, getTeamPitchGrade } from '../sim/recruiting';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
+import { RecruitingPitch, RecruitMotivation } from '../types/sim';
+
+const PITCH_LABELS: Record<RecruitingPitch, string> = {
+  PLAYING_TIME: 'Time',
+  PROXIMITY: 'Home',
+  ACADEMIC: 'Edu',
+  PRESTIGE: 'Prest',
+  CHAMPIONSHIP: 'Win',
+  CAMPUS_LIFE: 'Life',
+};
+
+function MotivationIcon({ motivation }: { motivation: RecruitMotivation }) {
+  const color = motivation.importance === 'HIGH' ? '#e74c3c' : motivation.importance === 'MEDIUM' ? '#f39c12' : '#95a5a6';
+  return (
+    <span title={`${PITCH_LABELS[motivation.pitch]} (${motivation.importance})`} style={{ color, marginRight: 4, cursor: 'help', fontSize: '0.85em' }}>
+      {PITCH_LABELS[motivation.pitch].substring(0, 1)}
+    </span>
+  );
+}
 
 function CoachCareerPage() {
   const dispatch = useAppDispatch();
@@ -45,7 +65,9 @@ function CoachCareerPage() {
       const fit = selectedTeam ? estimateRecruitFit(recruit, selectedTeam) : 0;
       const hours = coach.weeklyHoursByRecruitId[recruit.id] ?? 0;
       const interest = coach.interestByRecruitId[recruit.id] ?? Math.min(100, Math.round(fit * 0.55 + hours * 2.4 + recruit.stars * 5));
-      return { recruit, fit, hours, interest };
+      const activePitch = coach.activePitchesByRecruitId[recruit.id];
+      const pitchGrade = selectedTeam && activePitch ? getTeamPitchGrade(selectedTeam, activePitch, recruit) : '-';
+      return { recruit, hours, interest, activePitch, pitchGrade };
     })
     .sort((a, b) => b.interest - a.interest);
 
@@ -254,18 +276,40 @@ function CoachCareerPage() {
                 <thead>
                   <tr>
                     <th>Recruit</th>
-                    <th>Stars</th>
-                    <th>Fit</th>
+                    <th>Mots</th>
+                    <th>Pitch</th>
+                    <th>Grade</th>
                     <th>Interest</th>
                     <th>Hours</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {boardRows.map(({ recruit, fit, interest }) => (
+                  {boardRows.map(({ recruit, interest, activePitch, pitchGrade }) => (
                     <tr key={recruit.id}>
-                      <td>{recruit.name}</td>
-                      <td className="starText">{'★'.repeat(recruit.stars)}</td>
-                      <td>{fit}</td>
+                      <td>
+                        <div style={{ fontWeight: 'bold' }}>{recruit.name}</div>
+                        <div className="starText" style={{ fontSize: '0.8em' }}>{'★'.repeat(recruit.stars)} · {recruit.position}</div>
+                      </td>
+                      <td>
+                        {recruit.motivations?.map((m, i) => (
+                           <MotivationIcon key={i} motivation={m} />
+                        ))}
+                      </td>
+                      <td>
+                        <select
+                            value={activePitch || ''}
+                            onChange={(e) => dispatch(setRecruitPitch({ recruitId: recruit.id, pitch: e.target.value as RecruitingPitch }))}
+                            style={{ maxWidth: 100, fontSize: '0.85rem' }}
+                        >
+                            <option value="">None</option>
+                            {Object.entries(PITCH_LABELS).map(([key, label]) => (
+                                <option key={key} value={key}>{label}</option>
+                            ))}
+                        </select>
+                      </td>
+                      <td style={{ fontWeight: 'bold', color: pitchGrade.startsWith('A') ? 'green' : pitchGrade === 'F' ? 'red' : 'inherit'}}>
+                        {pitchGrade}
+                      </td>
                       <td>
                         <div className="interestMeterWrap">
                           <div className="interestMeterBar" style={{ width: `${interest}%` }} />
@@ -279,6 +323,7 @@ function CoachCareerPage() {
                           max={MAX_HOURS_PER_RECRUIT}
                           value={coach.weeklyHoursByRecruitId[recruit.id] ?? 0}
                           onChange={(event) => onHoursChange(recruit.id, Number(event.target.value) || 0)}
+                          style={{ width: 50 }}
                         />
                       </td>
                     </tr>
