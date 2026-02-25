@@ -23,7 +23,7 @@ const initialState: SeasonState = {
 // Async thunk to start a new season
 export const startNewSeason = createAsyncThunk(
   'season/startNewSeason',
-  async ({ seed }: { seed: number }, { getState, dispatch }) => {
+  async ({ seed }: { seed: number }, { getState }) => {
     const state = getState() as RootState;
     const teams = state.league.teams;
     const conferences = state.league.conferences;

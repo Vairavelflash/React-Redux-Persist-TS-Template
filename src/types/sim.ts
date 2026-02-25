@@ -6,13 +6,20 @@ export interface Conference {
   // ... other fields if any
 }
 
+export type TeamId = string;
+
 export interface Team {
-  id: string;
+  id: TeamId;
   schoolName: string;
   nickname: string;
   conferenceId: string;
   region: string;
   prestige: number;
+}
+
+export interface TeamSimInput {
+  team: Team;
+  roster: Player[];
 }
 
 export interface PlayerRatings {
