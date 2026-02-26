@@ -30,6 +30,7 @@ export function simulateRecruitingWeek(
   weeklyHoursByRecruitId: Record<string, number>,
   activePitchesByRecruitId: Record<string, RecruitingPitch | undefined>,
   pitchGradesByRecruitId: Record<string, string>,
+  dealbreakerViolationsByRecruitId: Record<string, boolean>,
   currentInterestByRecruitId: Record<string, number>,
   selectedTeamId: TeamId | null,
   seed: number,
@@ -62,17 +63,16 @@ export function simulateRecruitingWeek(
         const importanceMult = getImportanceMultiplier(motivation?.importance);
         const gradeMult = getGradeMultiplier(pitchGrade);
 
-        // Bonus logic:
-        // If Grade is A+ (1.5) and Importance High (1.5), mult is 2.25. (Bonus +125%)
-        // If Grade is F (0.5) and Importance High (1.5), mult is 0.75. (Penalty -25%)
-
-        // Base bonus is additive to ensure impact even with low hours?
-        // Or multiplicative? Multiplicative scales better with effort.
-
         pitchBonus = baseGain * (importanceMult * gradeMult - 1);
       }
 
       weeklyGain = Math.max(0, Math.round(baseGain + pitchBonus));
+    }
+
+    if (dealbreakerViolationsByRecruitId[recruit.id]) {
+      // If dealbreaker is violated, interest crashes or gain is negative
+      // Let's make it lose interest rapidly (-5 per week) regardless of hours
+      weeklyGain = -5;
     }
 
     const decay = boardSet.has(recruit.id) ? 0 : 2;

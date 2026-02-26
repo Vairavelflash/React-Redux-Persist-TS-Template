@@ -1,5 +1,5 @@
-import { Position, Recruit, RecruitingPitch, RecruitMotivation, Team } from '../types/sim';
-import { makeRng, pickOne, randInt } from './rng';
+import type { Position, Recruit, RecruitingPitch, RecruitMotivation, Team } from '../types/sim.ts';
+import { makeRng, pickOne, randInt } from './rng.ts';
 
 const FIRST_NAMES = ['Jalen', 'Mason', 'Ty', 'Cooper', 'Evan', 'Noah', 'Chase', 'Dylan', 'Kade', 'Liam', 'Owen', 'Brady'];
 const LAST_NAMES = ['Hale', 'Rivers', 'Dalton', 'Pierce', 'Maddox', 'Sloan', 'Whitaker', 'Cross', 'Mercer', 'Keane', 'Foster', 'Wells'];

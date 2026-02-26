@@ -183,13 +183,24 @@ export const advanceRecruitingWeek = createAsyncThunk(
 
         // Generate grades
         const pitchGradesByRecruitId: Record<string, string> = {};
+        const dealbreakerViolationsByRecruitId: Record<string, boolean> = {};
 
         coach.boardRecruitIds.forEach(recruitId => {
              const recruit = coach.recruitPool.find(r => r.id === recruitId);
-             const activePitch = coach.activePitchesByRecruitId[recruitId];
+             if (!recruit) return;
 
-             if (recruit && activePitch) {
+             const activePitch = coach.activePitchesByRecruitId[recruitId];
+             if (activePitch) {
                  pitchGradesByRecruitId[recruitId] = getTeamPitchGrade(selectedTeam, activePitch, recruit);
+             }
+
+             // Check dealbreaker
+             if (recruit.dealbreaker) {
+                 const grade = getTeamPitchGrade(selectedTeam, recruit.dealbreaker, recruit);
+                 // If grade is D or F, it's a violation
+                 if (grade === 'D' || grade === 'F') {
+                     dealbreakerViolationsByRecruitId[recruitId] = true;
+                 }
              }
         });
 
@@ -199,6 +210,7 @@ export const advanceRecruitingWeek = createAsyncThunk(
             coach.weeklyHoursByRecruitId,
             coach.activePitchesByRecruitId,
             pitchGradesByRecruitId,
+            dealbreakerViolationsByRecruitId,
             coach.interestByRecruitId,
             coach.selectedTeamId,
             coach.recruitingSeed,

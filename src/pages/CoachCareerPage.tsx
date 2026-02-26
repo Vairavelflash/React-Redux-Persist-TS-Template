@@ -68,7 +68,16 @@ function CoachCareerPage() {
       const change = coach.interestChangeByRecruitId[recruit.id] ?? 0;
       const activePitch = coach.activePitchesByRecruitId[recruit.id];
       const pitchGrade = selectedTeam && activePitch ? getTeamPitchGrade(selectedTeam, activePitch, recruit) : '-';
-      return { recruit, fit, hours, interest, change, activePitch, pitchGrade };
+
+      let dealbreakerWarning = false;
+      if (selectedTeam && recruit.dealbreaker) {
+          const dbGrade = getTeamPitchGrade(selectedTeam, recruit.dealbreaker, recruit);
+          if (dbGrade === 'D' || dbGrade === 'F') {
+              dealbreakerWarning = true;
+          }
+      }
+
+      return { recruit, fit, hours, interest, change, activePitch, pitchGrade, dealbreakerWarning };
     })
     .sort((a, b) => b.interest - a.interest);
 
@@ -294,10 +303,13 @@ function CoachCareerPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {boardRows.map(({ recruit, interest, change, activePitch, pitchGrade }) => (
+                  {boardRows.map(({ recruit, interest, change, activePitch, pitchGrade, dealbreakerWarning }) => (
                     <tr key={recruit.id}>
                       <td>
-                        <div style={{ fontWeight: 'bold' }}>{recruit.name}</div>
+                        <div style={{ fontWeight: 'bold' }}>
+                            {recruit.name}
+                            {dealbreakerWarning && <span title={`Dealbreaker: ${recruit.dealbreaker}`} style={{ color: 'red', marginLeft: 4 }}>⚠</span>}
+                        </div>
                         <div className="starText" style={{ fontSize: '0.8em' }}>{'★'.repeat(recruit.stars)} · {recruit.position}</div>
                       </td>
                       <td>
