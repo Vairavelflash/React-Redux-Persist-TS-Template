@@ -1,5 +1,6 @@
 import { Player, Position, Team } from '../types/sim';
-import { makeRng, randInt } from './rng';
+import { makeRng, pickOne, randInt } from './rng';
+import namesData from '../data/names.json' with { type: 'json' };
 
 const POSITION_DISTRIBUTION: Position[] = [
   'A', 'A', 'A',
@@ -11,9 +12,6 @@ const POSITION_DISTRIBUTION: Position[] = [
   'A', 'M', 'D', 'M', 'D', 'A', 'M', 'D',
   'LSM', 'M', 'D', 'A',
 ];
-
-const FIRST_NAMES = ['Alex', 'Jordan', 'Casey', 'Riley', 'Evan', 'Taylor', 'Cameron', 'Parker', 'Drew', 'Logan', 'Avery', 'Blake'];
-const LAST_NAMES = ['Hale', 'Turner', 'Bennett', 'Sloan', 'Miller', 'Frost', 'Donovan', 'Chase', 'Brooks', 'Keller', 'Pryor', 'Hayes'];
 
 const clamp = (value: number) => Math.max(40, Math.min(99, value));
 
@@ -46,7 +44,7 @@ export function generateRoster(team: Team, seed: string): Player[] {
 
     return {
       id: `${team.id}-P${index + 1}`,
-      name: `${FIRST_NAMES[randInt(rng, 0, FIRST_NAMES.length - 1)]} ${LAST_NAMES[randInt(rng, 0, LAST_NAMES.length - 1)]}`,
+      name: `${pickOne(rng, namesData.firstNames)} ${pickOne(rng, namesData.lastNames)}`,
       position,
       year,
       shooting,
