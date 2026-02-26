@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Link, Navigate } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import {
   addRecruitToBoard,
   advanceRecruitingWeek,
@@ -16,19 +16,24 @@ import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { RecruitingPitch, RecruitMotivation } from '../types/sim';
 
 const PITCH_LABELS: Record<RecruitingPitch, string> = {
-  PLAYING_TIME: 'Time',
+  PLAYING_TIME: 'Play Time',
   PROXIMITY: 'Home',
-  ACADEMIC: 'Edu',
-  PRESTIGE: 'Prest',
-  CHAMPIONSHIP: 'Win',
-  CAMPUS_LIFE: 'Life',
+  ACADEMIC: 'Academics',
+  PRESTIGE: 'Prestige',
+  CHAMPIONSHIP: 'Winning',
+  CAMPUS_LIFE: 'Campus',
 };
 
 function MotivationIcon({ motivation }: { motivation: RecruitMotivation }) {
-  const color = motivation.importance === 'HIGH' ? '#e74c3c' : motivation.importance === 'MEDIUM' ? '#f39c12' : '#95a5a6';
+  const color = motivation.importance === 'HIGH' ? '#ef4444' : motivation.importance === 'MEDIUM' ? '#f59e0b' : '#9ca3af';
+  const label = PITCH_LABELS[motivation.pitch];
   return (
-    <span title={`${PITCH_LABELS[motivation.pitch]} (${motivation.importance})`} style={{ color, marginRight: 4, cursor: 'help', fontSize: '0.85em' }}>
-      {PITCH_LABELS[motivation.pitch].substring(0, 1)}
+    <span
+        title={`${label} (${motivation.importance})`}
+        className="inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold mr-1 border bg-white cursor-help"
+        style={{ color, borderColor: color }}
+    >
+      {label.charAt(0)}
     </span>
   );
 }
@@ -37,62 +42,61 @@ function CoachCareerPage() {
   const dispatch = useAppDispatch();
   const teams = useAppSelector((state) => state.league.teams);
   const coach = useAppSelector((state) => state.coach);
-  const season = useAppSelector((state) => state.season);
   const recordsByTeamId = useAppSelector(selectTeamRecords);
 
   const [search, setSearch] = useState('');
   const [positionFilter, setPositionFilter] = useState('ALL');
   const [seedInput, setSeedInput] = useState(coach.recruitingSeed || 2026);
+
   const selectedTeam = teams.find((team) => team.id === coach.selectedTeamId) ?? null;
-  const teamNameById = useMemo(() => new Map(teams.map((team) => [team.id, `${team.schoolName} ${team.nickname}`])), [teams]);
+  const teamNameById = useMemo(() => new Map(teams.map((team) => [team.id, `${team.schoolName}`])), [teams]);
 
   const boardSet = useMemo(() => new Set(coach.boardRecruitIds), [coach.boardRecruitIds]);
 
-  const visibleRecruits = coach.recruitPool
-    .filter((recruit) => (positionFilter === 'ALL' ? true : recruit.position === positionFilter))
-    .filter((recruit) => recruit.name.toLowerCase().includes(search.toLowerCase()))
-    .slice(0, 120);
+  const visibleRecruits = useMemo(() => {
+      return coach.recruitPool
+        .filter((recruit) => (positionFilter === 'ALL' ? true : recruit.position === positionFilter))
+        .filter((recruit) => recruit.name.toLowerCase().includes(search.toLowerCase()))
+        .slice(0, 50); // limit for performance
+  }, [coach.recruitPool, positionFilter, search]);
 
-  const boardRecruits = coach.boardRecruitIds
-    .map((id) => coach.recruitPool.find((recruit) => recruit.id === id))
-    .filter((recruit): recruit is NonNullable<typeof recruit> => Boolean(recruit));
+  const boardRecruits = useMemo(() => {
+      return coach.boardRecruitIds
+        .map((id) => coach.recruitPool.find((recruit) => recruit.id === id))
+        .filter((recruit): recruit is NonNullable<typeof recruit> => Boolean(recruit));
+  }, [coach.boardRecruitIds, coach.recruitPool]);
 
   const totalHours = boardRecruits.reduce((sum, recruit) => sum + (coach.weeklyHoursByRecruitId[recruit.id] ?? 0), 0);
   const hoursRemaining = WEEKLY_HOURS_CAP - totalHours;
 
-  const boardRows = [...boardRecruits]
-    .map((recruit) => {
-      const fit = selectedTeam ? estimateRecruitFit(recruit, selectedTeam) : 0;
-      const hours = coach.weeklyHoursByRecruitId[recruit.id] ?? 0;
-      const interest = coach.interestByRecruitId[recruit.id] ?? 0;
-      const change = coach.interestChangeByRecruitId[recruit.id] ?? 0;
-      const activePitch = coach.activePitchesByRecruitId[recruit.id];
-      const pitchGrade = selectedTeam && activePitch ? getTeamPitchGrade(selectedTeam, activePitch, recruit) : '-';
+  const boardRows = useMemo(() => {
+      return [...boardRecruits]
+        .map((recruit) => {
+          const fit = selectedTeam ? estimateRecruitFit(recruit, selectedTeam) : 0;
+          const hours = coach.weeklyHoursByRecruitId[recruit.id] ?? 0;
+          const interest = coach.interestByRecruitId[recruit.id] ?? 0;
+          const change = coach.interestChangeByRecruitId[recruit.id] ?? 0;
+          const activePitch = coach.activePitchesByRecruitId[recruit.id];
+          const pitchGrade = selectedTeam && activePitch ? getTeamPitchGrade(selectedTeam, activePitch, recruit) : '-';
 
-      let dealbreakerWarning = false;
-      if (selectedTeam && recruit.dealbreaker) {
-          const dbGrade = getTeamPitchGrade(selectedTeam, recruit.dealbreaker, recruit);
-          if (dbGrade === 'D' || dbGrade === 'F') {
-              dealbreakerWarning = true;
+          let dealbreakerWarning = false;
+          if (selectedTeam && recruit.dealbreaker) {
+              const dbGrade = getTeamPitchGrade(selectedTeam, recruit.dealbreaker, recruit);
+              if (dbGrade === 'D' || dbGrade === 'F') {
+                  dealbreakerWarning = true;
+              }
           }
-      }
 
-      return { recruit, fit, hours, interest, change, activePitch, pitchGrade, dealbreakerWarning };
-    })
-    .sort((a, b) => b.interest - a.interest);
+          return { recruit, fit, hours, interest, change, activePitch, pitchGrade, dealbreakerWarning };
+        })
+        .sort((a, b) => b.interest - a.interest);
+  }, [boardRecruits, coach.weeklyHoursByRecruitId, coach.interestByRecruitId, coach.interestChangeByRecruitId, coach.activePitchesByRecruitId, selectedTeam]);
 
   const committedToUserCount = coach.recruitPool.filter((recruit) => recruit.committedTeamId && recruit.committedTeamId === coach.selectedTeamId).length;
-  const boardAvgInterest = boardRows.length ? Math.round(boardRows.reduce((sum, row) => sum + row.interest, 0) / boardRows.length) : 0;
-
 
   const userRecord = coach.selectedTeamId
     ? recordsByTeamId[coach.selectedTeamId] ?? { wins: 0, losses: 0, confWins: 0, confLosses: 0, pointsFor: 0, pointsAgainst: 0 }
     : { wins: 0, losses: 0, confWins: 0, confLosses: 0, pointsFor: 0, pointsAgainst: 0 };
-  const pointDiff = userRecord.pointsFor - userRecord.pointsAgainst;
-  const seasonStatusText =
-    season.scheduleByWeek.length === 0
-      ? 'No active season'
-      : `Week ${Math.min(season.currentWeekIndex + 1, 12)} · ${season.phase}`;
 
   if (coach.onboardingStep !== 'READY' || !coach.profile || !coach.selectedTeamId) {
     return <Navigate to="/career/setup" replace />;
@@ -101,7 +105,6 @@ function CoachCareerPage() {
   function onAdd(recruit: typeof visibleRecruits[0]) {
     if (selectedTeam) {
         const fit = estimateRecruitFit(recruit, selectedTeam);
-        // Initial interest formula: roughly Fit * 0.6 + Stars bonus
         const startingInterest = Math.min(60, Math.round(fit * 0.6 + recruit.stars * 2));
         dispatch(addRecruitToBoard({ recruitId: recruit.id, startingInterest }));
     }
@@ -116,243 +119,135 @@ function CoachCareerPage() {
   }
 
   return (
-    <section>
-      <h2>Coach Career: Recruiting</h2>
-      <p className="mutedText">{coach.profile.name} · {selectedTeam?.schoolName} {selectedTeam?.nickname} · {coach.careerTier}</p>
-      <p className="mutedText">Need to change coach identity or program? <Link to="/career/setup">Return to setup</Link>.</p>
-
+    <div className="flex-col gap-4">
       <div className="card">
-        <h3>Program Snapshot</h3>
-        <div className="careerStatsGrid">
-          <div className="statTile">
-            <span className="mutedText">Season Status</span>
-            <strong>{seasonStatusText}</strong>
-          </div>
-          <div className="statTile">
-            <span className="mutedText">Record</span>
-            <strong>{userRecord.wins}-{userRecord.losses}</strong>
-          </div>
-          <div className="statTile">
-            <span className="mutedText">Conference</span>
-            <strong>{userRecord.confWins}-{userRecord.confLosses}</strong>
-          </div>
-          <div className="statTile">
-            <span className="mutedText">Point Diff</span>
-            <strong>{pointDiff >= 0 ? `+${pointDiff}` : pointDiff}</strong>
-          </div>
-        </div>
-        <p className="mutedText">Open <Link to="/season">Season Command Center</Link> to advance games and feed recruiting momentum.</p>
-      </div>
-
-      <div className="card">
-        <div className="setupSummary">
-          <p>
-            <strong>Program:</strong> {selectedTeam?.schoolName} {selectedTeam?.nickname}
-          </p>
-          <p className="mutedText">
-            <strong>Career Tier:</strong> {coach.careerTier} · <strong>Season Wins Target:</strong> {coach.programExpectations?.winTarget ?? '-'} ·{' '}
-            <strong>Security Baseline:</strong> {coach.programExpectations?.securityBaseline ?? '-'}
-          </p>
+        <div className="flex justify-between items-start">
+            <div>
+                <h2 className="m-0 text-xl">{selectedTeam?.schoolName} Recruiting</h2>
+                <div className="text-gray-500 text-sm mt-1">
+                    Coach {coach.profile.name} &bull; Tier {coach.careerTier}
+                </div>
+            </div>
+            <div className="text-right">
+                <div className="text-sm font-semibold">Season Record</div>
+                <div className="text-lg font-bold">{userRecord.wins}-{userRecord.losses} ({userRecord.confWins}-{userRecord.confLosses})</div>
+            </div>
         </div>
 
-        <div className="seedRow">
-          <label>
-            Recruiting Seed
-            <input type="number" value={seedInput} onChange={(event) => setSeedInput(Number(event.target.value) || 0)} />
-          </label>
-
-          <button type="button" onClick={() => setSeedInput(Math.floor(Math.random() * 1_000_000_000))}>
-            Random Seed
-          </button>
-          <button type="button" onClick={() => dispatch(initializeRecruitingBoard({ seed: seedInput }))}>
-            Generate Recruiting Class
-          </button>
-          <button type="button" onClick={() => dispatch(advanceRecruitingWeek())} disabled={coach.recruitPool.length === 0 || coach.boardRecruitIds.length === 0}>
-            Advance Recruiting Week
-          </button>
-        </div>
-        <p className="mutedText">Board size: {coach.boardRecruitIds.length} / 25 · Pool: {coach.recruitPool.length} prospects · Recruiting Week {coach.recruitingWeekIndex + 1}</p>
-        <p className={hoursRemaining < 0 ? 'warnText' : 'mutedText'}>
-          Weekly recruiting hours: {totalHours} / {WEEKLY_HOURS_CAP} {hoursRemaining >= 0 ? `(remaining ${hoursRemaining})` : '(over budget)'}
-        </p>
-        {coach.boardRecruitIds.length === 0 ? <p className="mutedText">Add at least one recruit to your board before advancing the week.</p> : null}
-
-        <div className="careerStatsGrid">
-          <div className="statTile">
-            <span className="mutedText">Committed to You</span>
-            <strong>{committedToUserCount}</strong>
-          </div>
-          <div className="statTile">
-            <span className="mutedText">Avg Board Interest</span>
-            <strong>{boardAvgInterest}</strong>
-          </div>
-          <div className="statTile">
-            <span className="mutedText">Open Scholarships (scaffold)</span>
-            <strong>{Math.max(0, 12 - committedToUserCount)}</strong>
-          </div>
+        <div className="flex gap-4 mt-4 pt-4 border-t">
+            <div className="flex-1">
+                 <div className="text-xs text-gray-500 uppercase">Classes</div>
+                 <div className="font-bold">{committedToUserCount} / 12 Committed</div>
+            </div>
+             <div className="flex-1">
+                 <div className="text-xs text-gray-500 uppercase">Hours Available</div>
+                 <div className={`font-bold ${hoursRemaining < 0 ? 'text-red-600' : 'text-green-600'}`}>
+                    {hoursRemaining} / {WEEKLY_HOURS_CAP}
+                 </div>
+            </div>
+             <div className="flex-1 text-right">
+                 {coach.recruitPool.length === 0 ? (
+                     <div className="flex gap-2 justify-end items-center">
+                        <input
+                            type="number"
+                            value={seedInput}
+                            onChange={(e) => setSeedInput(Number(e.target.value))}
+                            className="w-20 p-1 text-sm border rounded"
+                            placeholder="Seed"
+                        />
+                        <button
+                            className="btn btn-primary text-sm"
+                            onClick={() => dispatch(initializeRecruitingBoard({ seed: seedInput }))}
+                        >
+                            Start Recruiting
+                        </button>
+                     </div>
+                 ) : (
+                    <button
+                        className="btn btn-primary"
+                        onClick={() => dispatch(advanceRecruitingWeek())}
+                        disabled={coach.boardRecruitIds.length === 0}
+                    >
+                        Advance Week {coach.recruitingWeekIndex + 1}
+                    </button>
+                 )}
+            </div>
         </div>
       </div>
 
       <div className="grid2">
         <div className="card">
-          <h3>Prospect Pool</h3>
-          <div className="seedRow">
-            <label>
-              Search
-              <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search recruit" />
-            </label>
-            <label>
-              Position
-              <select value={positionFilter} onChange={(event) => setPositionFilter(event.target.value)}>
-                <option value="ALL">All</option>
-                <option value="A">A</option>
-                <option value="M">M</option>
-                <option value="D">D</option>
-                <option value="LSM">LSM</option>
-                <option value="FO">FO</option>
-                <option value="G">G</option>
-              </select>
-            </label>
-            <button
-              type="button"
-              onClick={() => {
-                setSearch('');
-                setPositionFilter('ALL');
-              }}
-            >
-              Clear Filters
-            </button>
-          </div>
+          <h3 className="text-lg font-bold mb-2">Target List ({boardRows.length}/25)</h3>
 
-          <div className="scrollPanel">
-            <table>
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Pos</th>
-                  <th>Stars</th>
-                  <th>Potential</th>
-                  <th>Fit</th>
-                  <th>Interest</th>
-                  <th>Status</th>
-                  <th>Board</th>
-                </tr>
-              </thead>
-              <tbody>
-                {visibleRecruits.map((recruit) => {
-                  const committedName = recruit.committedTeamId
-                    ? recruit.committedTeamId === coach.selectedTeamId
-                      ? 'Committed (You)'
-                      : teamNameById.get(recruit.committedTeamId) ?? 'Committed'
-                    : null;
-                  const isCommittedElsewhere = Boolean(recruit.committedTeamId && recruit.committedTeamId !== coach.selectedTeamId);
-                  const interest = coach.interestByRecruitId[recruit.id] ?? 0;
-
-                  return (
-                    <tr key={recruit.id}>
-                      <td>{recruit.name}</td>
-                      <td>{recruit.position}</td>
-                      <td className="starText">{'★'.repeat(recruit.stars)}</td>
-                      <td>{recruit.potential}</td>
-                      <td>{selectedTeam ? estimateRecruitFit(recruit, selectedTeam) : '-'}</td>
-                      <td>
-                        <div className="interestMeterWrap">
-                          <div className="interestMeterBar" style={{ width: `${interest}%` }} />
-                        </div>
-                        <span className="meterLabel">{interest}</span>
-                      </td>
-                      <td>{committedName ?? 'Open'}</td>
-                      <td>
-                        {boardSet.has(recruit.id) ? (
-                          <button type="button" onClick={() => dispatch(removeRecruitFromBoard(recruit.id))}>
-                            Remove
-                          </button>
-                        ) : (
-                          <button
-                            type="button"
-                            onClick={() => onAdd(recruit)}
-                            disabled={!selectedTeam || boardSet.size >= 25 || isCommittedElsewhere}
-                          >
-                            Add
-                          </button>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <div className="card">
-          <h3>Your Board</h3>
           {boardRows.length === 0 ? (
-            <p className="mutedText">Add recruits from the pool to build your board.</p>
+             <div className="text-center py-8 text-gray-500 bg-gray-50 rounded">
+                 <p>Your board is empty.</p>
+                 <p className="text-sm">Add prospects from the pool on the right.</p>
+             </div>
           ) : (
-            <div className="scrollPanel">
-              <table>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
                 <thead>
-                  <tr>
-                    <th>Recruit</th>
-                    <th>Mots</th>
-                    <th>Pitch</th>
-                    <th>Grade</th>
-                    <th>Interest</th>
-                    <th>Hours</th>
+                  <tr className="text-left text-gray-500 border-b">
+                    <th className="pb-2">Recruit</th>
+                    <th className="pb-2">Pitch/Grade</th>
+                    <th className="pb-2 w-24">Interest</th>
+                    <th className="pb-2 text-right">Hours</th>
                   </tr>
                 </thead>
                 <tbody>
                   {boardRows.map(({ recruit, interest, change, activePitch, pitchGrade, dealbreakerWarning }) => (
-                    <tr key={recruit.id}>
-                      <td>
-                        <div style={{ fontWeight: 'bold' }}>
+                    <tr key={recruit.id} className="border-b last:border-0 hover:bg-gray-50">
+                      <td className="py-2">
+                        <div className="font-semibold flex items-center gap-1">
                             {recruit.name}
-                            {dealbreakerWarning && <span title={`Dealbreaker: ${recruit.dealbreaker}`} style={{ color: 'red', marginLeft: 4 }}>⚠</span>}
+                            {dealbreakerWarning && <span title="Dealbreaker Warning" className="text-red-500 cursor-help">⚠</span>}
                         </div>
-                        <div className="starText" style={{ fontSize: '0.8em' }}>{'★'.repeat(recruit.stars)} · {recruit.position}</div>
+                        <div className="text-xs text-gray-500">
+                             {'★'.repeat(recruit.stars)} {recruit.position}
+                             <div className="flex mt-1">
+                                {recruit.motivations?.map((m, i) => <MotivationIcon key={i} motivation={m} />)}
+                             </div>
+                        </div>
                       </td>
-                      <td>
-                        {recruit.motivations?.map((m, i) => (
-                           <MotivationIcon key={i} motivation={m} />
-                        ))}
-                      </td>
-                      <td>
+                      <td className="py-2">
                         <select
                             value={activePitch || ''}
                             onChange={(e) => dispatch(setRecruitPitch({ recruitId: recruit.id, pitch: e.target.value as RecruitingPitch }))}
-                            style={{ maxWidth: 100, fontSize: '0.85rem' }}
+                            className="text-xs p-1 border rounded w-full mb-1"
                         >
-                            <option value="">None</option>
+                            <option value="">No Pitch</option>
                             {Object.entries(PITCH_LABELS).map(([key, label]) => (
                                 <option key={key} value={key}>{label}</option>
                             ))}
                         </select>
+                        {activePitch && (
+                            <div className={`text-xs font-bold text-center ${pitchGrade.startsWith('A') ? 'text-green-600' : pitchGrade === 'F' ? 'text-red-600' : 'text-gray-600'}`}>
+                                Grade: {pitchGrade}
+                            </div>
+                        )}
                       </td>
-                      <td style={{ fontWeight: 'bold', color: pitchGrade.startsWith('A') ? 'green' : pitchGrade === 'F' ? 'red' : 'inherit'}}>
-                        {pitchGrade}
-                      </td>
-                      <td>
-                        <div className="interestMeterWrap">
-                          <div className="interestMeterBar" style={{ width: `${interest}%` }} />
+                      <td className="py-2">
+                        <div className="w-full bg-gray-200 rounded-full h-2 mb-1">
+                          <div className="bg-blue-600 h-2 rounded-full" style={{ width: `${interest}%` }} />
                         </div>
-                        <div className="meterLabel">
-                            {interest}
-                            {change !== 0 ? (
-                                <span style={{ color: change > 0 ? 'green' : 'red', fontSize: '0.8em', marginLeft: 4 }}>
-                                    ({change > 0 ? '+' : ''}{change})
+                        <div className="text-xs flex justify-between">
+                            <span>{interest}%</span>
+                            {change !== 0 && (
+                                <span className={change > 0 ? 'text-green-600' : 'text-red-600'}>
+                                    {change > 0 ? '+' : ''}{change}
                                 </span>
-                            ) : null}
+                            )}
                         </div>
                       </td>
-                      <td>
+                      <td className="py-2 text-right">
                         <input
                           type="number"
                           min={0}
                           max={MAX_HOURS_PER_RECRUIT}
                           value={coach.weeklyHoursByRecruitId[recruit.id] ?? 0}
                           onChange={(event) => onHoursChange(recruit.id, Number(event.target.value) || 0)}
-                          style={{ width: 50 }}
+                          className="w-12 p-1 border rounded text-center"
                         />
                       </td>
                     </tr>
@@ -362,8 +257,105 @@ function CoachCareerPage() {
             </div>
           )}
         </div>
+
+        <div className="card">
+          <div className="flex justify-between items-center mb-2">
+            <h3 className="text-lg font-bold m-0">Prospect Pool</h3>
+             <button
+              className="text-xs text-blue-600 hover:underline bg-transparent border-0 cursor-pointer"
+              onClick={() => { setSearch(''); setPositionFilter('ALL'); }}
+            >
+              Reset Filters
+            </button>
+          </div>
+
+          <div className="flex gap-2 mb-4">
+            <input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search..."
+                className="flex-1 p-1 text-sm border rounded"
+            />
+            <select
+                value={positionFilter}
+                onChange={(e) => setPositionFilter(e.target.value)}
+                className="w-20 p-1 text-sm border rounded"
+            >
+                <option value="ALL">All</option>
+                <option value="A">A</option>
+                <option value="M">M</option>
+                <option value="D">D</option>
+                <option value="LSM">LSM</option>
+                <option value="FO">FO</option>
+                <option value="G">G</option>
+            </select>
+          </div>
+
+          <div className="overflow-y-auto" style={{ maxHeight: '600px' }}>
+            <table className="w-full text-sm">
+              <thead className="bg-gray-50 sticky top-0">
+                <tr className="text-left text-gray-500">
+                  <th className="p-2">Name</th>
+                  <th className="p-2">Rtg</th>
+                  <th className="p-2">Fit</th>
+                  <th className="p-2 text-right">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {visibleRecruits.map((recruit) => {
+                  const isCommittedElsewhere = Boolean(recruit.committedTeamId && recruit.committedTeamId !== coach.selectedTeamId);
+                  const isCommittedToMe = recruit.committedTeamId === coach.selectedTeamId;
+                  const onBoard = boardSet.has(recruit.id);
+                  const fit = selectedTeam ? estimateRecruitFit(recruit, selectedTeam) : '-';
+
+                  return (
+                    <tr key={recruit.id} className={`border-b hover:bg-gray-50 ${isCommittedToMe ? 'bg-green-50' : ''}`}>
+                      <td className="p-2">
+                        <div className="font-semibold">{recruit.name}</div>
+                        <div className="text-xs text-gray-500">{recruit.position} &bull; {recruit.region}</div>
+                        {isCommittedElsewhere && <div className="text-xs text-red-500">Committed: {teamNameById.get(recruit.committedTeamId!) || 'Other'}</div>}
+                        {isCommittedToMe && <div className="text-xs text-green-600 font-bold">Committed!</div>}
+                      </td>
+                      <td className="p-2 text-yellow-500 text-xs">
+                          {'★'.repeat(recruit.stars)}
+                      </td>
+                      <td className="p-2 font-mono">
+                          {fit}
+                      </td>
+                      <td className="p-2 text-right">
+                        {onBoard ? (
+                          <button
+                            className="text-xs text-red-600 hover:underline bg-transparent border-0 cursor-pointer"
+                            onClick={() => dispatch(removeRecruitFromBoard(recruit.id))}
+                          >
+                            Remove
+                          </button>
+                        ) : (
+                          !isCommittedElsewhere && !isCommittedToMe && (
+                              <button
+                                className="text-xs px-2 py-1 bg-blue-50 text-blue-600 rounded border border-blue-200 hover:bg-blue-100 cursor-pointer"
+                                onClick={() => onAdd(recruit)}
+                                disabled={boardSet.size >= 25}
+                              >
+                                Add
+                              </button>
+                          )
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+                 {visibleRecruits.length === 0 && (
+                    <tr>
+                        <td colSpan={4} className="p-4 text-center text-gray-500">No recruits found.</td>
+                    </tr>
+                 )}
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
-    </section>
+    </div>
   );
 }
 
