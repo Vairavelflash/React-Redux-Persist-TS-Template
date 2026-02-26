@@ -84,7 +84,7 @@
     },
     {
       "id": "t003",
-      "schoolName": "Lakeview University",
+      "schoolName": "Lakeview College",
       "nickname": "Rangers",
       "conferenceId": "c1",
       "region": "Southeast",
@@ -92,7 +92,7 @@
     },
     {
       "id": "t004",
-      "schoolName": "Summit Point University",
+      "schoolName": "Summit Point State",
       "nickname": "Mustangs",
       "conferenceId": "c1",
       "region": "Midwest",
@@ -100,7 +100,7 @@
     },
     {
       "id": "t005",
-      "schoolName": "Cedar Valley University",
+      "schoolName": "Cedar Valley Tech",
       "nickname": "Guardians",
       "conferenceId": "c1",
       "region": "South",
@@ -116,7 +116,7 @@
     },
     {
       "id": "t007",
-      "schoolName": "Maple Coast University",
+      "schoolName": "Maple Coast College",
       "nickname": "Wolves",
       "conferenceId": "c1",
       "region": "West",
@@ -124,7 +124,7 @@
     },
     {
       "id": "t008",
-      "schoolName": "Rivergate University",
+      "schoolName": "Rivergate A&M",
       "nickname": "Knights",
       "conferenceId": "c1",
       "region": "North",
@@ -132,7 +132,7 @@
     },
     {
       "id": "t009",
-      "schoolName": "Lakeview University",
+      "schoolName": "Northfield University",
       "nickname": "Hawks",
       "conferenceId": "c2",
       "region": "Mid-Atlantic",
@@ -140,7 +140,7 @@
     },
     {
       "id": "t010",
-      "schoolName": "Summit Point University",
+      "schoolName": "Easton State",
       "nickname": "Titans",
       "conferenceId": "c2",
       "region": "Southeast",
@@ -148,7 +148,7 @@
     },
     {
       "id": "t011",
-      "schoolName": "Cedar Valley University",
+      "schoolName": "Westbridge University",
       "nickname": "Storm",
       "conferenceId": "c2",
       "region": "Midwest",
@@ -156,7 +156,7 @@
     },
     {
       "id": "t012",
-      "schoolName": "Ironwood University",
+      "schoolName": "Fairmont College",
       "nickname": "Panthers",
       "conferenceId": "c2",
       "region": "South",
@@ -164,7 +164,7 @@
     },
     {
       "id": "t013",
-      "schoolName": "Maple Coast University",
+      "schoolName": "Oakridge Tech",
       "nickname": "Foxes",
       "conferenceId": "c2",
       "region": "Southwest",
@@ -172,7 +172,7 @@
     },
     {
       "id": "t014",
-      "schoolName": "Rivergate University",
+      "schoolName": "Silver Lake University",
       "nickname": "Bears",
       "conferenceId": "c2",
       "region": "West",
@@ -180,7 +180,7 @@
     },
     {
       "id": "t015",
-      "schoolName": "Stonebridge University",
+      "schoolName": "Pioneer State",
       "nickname": "Falcons",
       "conferenceId": "c2",
       "region": "North",
@@ -188,7 +188,7 @@
     },
     {
       "id": "t016",
-      "schoolName": "Northfield University",
+      "schoolName": "Stonebridge College",
       "nickname": "Rangers",
       "conferenceId": "c2",
       "region": "Northeast",
@@ -196,896 +196,896 @@
     },
     {
       "id": "t017",
-      "schoolName": "Cedar Valley University",
-      "nickname": "Wolves",
+      "schoolName": "Aspen Valley University",
+      "nickname": "Mountaineers",
       "conferenceId": "c3",
       "region": "Southeast",
       "prestige": 62
     },
     {
       "id": "t018",
-      "schoolName": "Ironwood University",
-      "nickname": "Knights",
+      "schoolName": "Bay Point College",
+      "nickname": "Sharks",
       "conferenceId": "c3",
       "region": "Midwest",
       "prestige": 64
     },
     {
       "id": "t019",
-      "schoolName": "Maple Coast University",
-      "nickname": "Lynx",
+      "schoolName": "Canyon State University",
+      "nickname": "Coyotes",
       "conferenceId": "c3",
       "region": "South",
       "prestige": 69
     },
     {
       "id": "t020",
-      "schoolName": "Rivergate University",
-      "nickname": "Comets",
+      "schoolName": "Delta River Tech",
+      "nickname": "Generals",
       "conferenceId": "c3",
       "region": "Southwest",
       "prestige": 74
     },
     {
       "id": "t021",
-      "schoolName": "Stonebridge University",
-      "nickname": "Blaze",
+      "schoolName": "Evergreen State",
+      "nickname": "Timberwolves",
       "conferenceId": "c3",
       "region": "West",
       "prestige": 79
     },
     {
       "id": "t022",
-      "schoolName": "Northfield University",
-      "nickname": "Hawks",
+      "schoolName": "Foothill College",
+      "nickname": "Rams",
       "conferenceId": "c3",
       "region": "North",
       "prestige": 84
     },
     {
       "id": "t023",
-      "schoolName": "Easton University",
-      "nickname": "Titans",
+      "schoolName": "Grandview University",
+      "nickname": "Eagles",
       "conferenceId": "c3",
       "region": "Northeast",
       "prestige": 89
     },
     {
       "id": "t024",
-      "schoolName": "Westbridge University",
-      "nickname": "Storm",
+      "schoolName": "Harbor City College",
+      "nickname": "Dockers",
       "conferenceId": "c3",
       "region": "Mid-Atlantic",
       "prestige": 48
     },
     {
       "id": "t025",
-      "schoolName": "Maple Coast University",
-      "nickname": "Falcons",
+      "schoolName": "Inland Empire University",
+      "nickname": "Roadrunners",
       "conferenceId": "c4",
       "region": "Midwest",
       "prestige": 69
     },
     {
       "id": "t026",
-      "schoolName": "Rivergate University",
-      "nickname": "Rangers",
+      "schoolName": "Juniper State",
+      "nickname": "Jackrabbits",
       "conferenceId": "c4",
       "region": "South",
       "prestige": 71
     },
     {
       "id": "t027",
-      "schoolName": "Stonebridge University",
-      "nickname": "Mustangs",
+      "schoolName": "Kingswood College",
+      "nickname": "Royals",
       "conferenceId": "c4",
       "region": "Southwest",
       "prestige": 76
     },
     {
       "id": "t028",
-      "schoolName": "Northfield University",
-      "nickname": "Guardians",
+      "schoolName": "Lakeside University",
+      "nickname": "Lakers",
       "conferenceId": "c4",
       "region": "West",
       "prestige": 81
     },
     {
       "id": "t029",
-      "schoolName": "Easton University",
-      "nickname": "Mariners",
+      "schoolName": "Mountain View Tech",
+      "nickname": "Sentinels",
       "conferenceId": "c4",
       "region": "North",
       "prestige": 86
     },
     {
       "id": "t030",
-      "schoolName": "Westbridge University",
-      "nickname": "Wolves",
+      "schoolName": "North Woods College",
+      "nickname": "Moose",
       "conferenceId": "c4",
       "region": "Northeast",
       "prestige": 45
     },
     {
       "id": "t031",
-      "schoolName": "Fairmont University",
-      "nickname": "Knights",
+      "schoolName": "Ocean Side University",
+      "nickname": "Waves",
       "conferenceId": "c4",
       "region": "Mid-Atlantic",
       "prestige": 50
     },
     {
       "id": "t032",
-      "schoolName": "Oakridge University",
-      "nickname": "Lynx",
+      "schoolName": "Pine Grove State",
+      "nickname": "Pioneers",
       "conferenceId": "c4",
       "region": "Southeast",
       "prestige": 55
     },
     {
       "id": "t033",
-      "schoolName": "Stonebridge University",
-      "nickname": "Titans",
+      "schoolName": "Quartz Hill University",
+      "nickname": "Miners",
       "conferenceId": "c5",
       "region": "South",
       "prestige": 76
     },
     {
       "id": "t034",
-      "schoolName": "Northfield University",
-      "nickname": "Storm",
+      "schoolName": "Red Rock College",
+      "nickname": "Raptors",
       "conferenceId": "c5",
       "region": "Southwest",
       "prestige": 78
     },
     {
       "id": "t035",
-      "schoolName": "Easton University",
-      "nickname": "Panthers",
+      "schoolName": "Sierra Nevada Tech",
+      "nickname": "Summit",
       "conferenceId": "c5",
       "region": "West",
       "prestige": 83
     },
     {
       "id": "t036",
-      "schoolName": "Westbridge University",
-      "nickname": "Foxes",
+      "schoolName": "Twin Rivers State",
+      "nickname": "Beavers",
       "conferenceId": "c5",
       "region": "North",
       "prestige": 88
     },
     {
       "id": "t037",
-      "schoolName": "Fairmont University",
-      "nickname": "Bears",
+      "schoolName": "Valley Forge University",
+      "nickname": "Patriots",
       "conferenceId": "c5",
       "region": "Northeast",
       "prestige": 47
     },
     {
       "id": "t038",
-      "schoolName": "Oakridge University",
-      "nickname": "Falcons",
+      "schoolName": "West Coast College",
+      "nickname": "Seagulls",
       "conferenceId": "c5",
       "region": "Mid-Atlantic",
       "prestige": 52
     },
     {
       "id": "t039",
-      "schoolName": "Silver Lake University",
-      "nickname": "Rangers",
+      "schoolName": "Yellowstone State",
+      "nickname": "Bison",
       "conferenceId": "c5",
       "region": "Southeast",
       "prestige": 57
     },
     {
       "id": "t040",
-      "schoolName": "Pioneer University",
-      "nickname": "Mustangs",
+      "schoolName": "Zenith University",
+      "nickname": "Stars",
       "conferenceId": "c5",
       "region": "Midwest",
       "prestige": 62
     },
     {
       "id": "t041",
-      "schoolName": "Easton University",
-      "nickname": "Knights",
+      "schoolName": "Acadia College",
+      "nickname": "Axemen",
       "conferenceId": "c6",
       "region": "Southwest",
       "prestige": 83
     },
     {
       "id": "t042",
-      "schoolName": "Westbridge University",
-      "nickname": "Lynx",
+      "schoolName": "Beacon Hill University",
+      "nickname": "Lanterns",
       "conferenceId": "c6",
       "region": "West",
       "prestige": 85
     },
     {
       "id": "t043",
-      "schoolName": "Fairmont University",
-      "nickname": "Comets",
+      "schoolName": "Cascade State",
+      "nickname": "Cascades",
       "conferenceId": "c6",
       "region": "North",
       "prestige": 90
     },
     {
       "id": "t044",
-      "schoolName": "Oakridge University",
-      "nickname": "Blaze",
+      "schoolName": "Denali University",
+      "nickname": "Alpinists",
       "conferenceId": "c6",
       "region": "Northeast",
       "prestige": 49
     },
     {
       "id": "t045",
-      "schoolName": "Silver Lake University",
-      "nickname": "Hawks",
+      "schoolName": "Empire State Tech",
+      "nickname": "Builders",
       "conferenceId": "c6",
       "region": "Mid-Atlantic",
       "prestige": 54
     },
     {
       "id": "t046",
-      "schoolName": "Pioneer University",
-      "nickname": "Titans",
+      "schoolName": "Frontier College",
+      "nickname": "Trappers",
       "conferenceId": "c6",
       "region": "Southeast",
       "prestige": 59
     },
     {
       "id": "t047",
-      "schoolName": "Blue Ridge University",
-      "nickname": "Storm",
+      "schoolName": "Great Plains University",
+      "nickname": "Plainsmen",
       "conferenceId": "c6",
       "region": "Midwest",
       "prestige": 64
     },
     {
       "id": "t048",
-      "schoolName": "Granite State University",
-      "nickname": "Panthers",
+      "schoolName": "Highland State",
+      "nickname": "Highlanders",
       "conferenceId": "c6",
       "region": "South",
       "prestige": 69
     },
     {
       "id": "t049",
-      "schoolName": "Fairmont University",
-      "nickname": "Rangers",
+      "schoolName": "Island City College",
+      "nickname": "Islanders",
       "conferenceId": "c7",
       "region": "West",
       "prestige": 90
     },
     {
       "id": "t050",
-      "schoolName": "Oakridge University",
-      "nickname": "Mustangs",
+      "schoolName": "Jefferson State",
+      "nickname": "Statesmen",
       "conferenceId": "c7",
       "region": "North",
       "prestige": 46
     },
     {
       "id": "t051",
-      "schoolName": "Silver Lake University",
-      "nickname": "Guardians",
+      "schoolName": "Keystone University",
+      "nickname": "Dragons",
       "conferenceId": "c7",
       "region": "Northeast",
       "prestige": 51
     },
     {
       "id": "t052",
-      "schoolName": "Pioneer University",
-      "nickname": "Mariners",
+      "schoolName": "Liberty Tech",
+      "nickname": "Bells",
       "conferenceId": "c7",
       "region": "Mid-Atlantic",
       "prestige": 56
     },
     {
       "id": "t053",
-      "schoolName": "Blue Ridge University",
-      "nickname": "Wolves",
+      "schoolName": "Midland College",
+      "nickname": "Mavericks",
       "conferenceId": "c7",
       "region": "Southeast",
       "prestige": 61
     },
     {
       "id": "t054",
-      "schoolName": "Granite State University",
-      "nickname": "Knights",
+      "schoolName": "Northern Lights University",
+      "nickname": "Aurora",
       "conferenceId": "c7",
       "region": "Midwest",
       "prestige": 66
     },
     {
       "id": "t055",
-      "schoolName": "Lakeview University",
-      "nickname": "Lynx",
+      "schoolName": "Olympic State",
+      "nickname": "Olympians",
       "conferenceId": "c7",
       "region": "South",
       "prestige": 71
     },
     {
       "id": "t056",
-      "schoolName": "Summit Point University",
-      "nickname": "Comets",
+      "schoolName": "Pacific Coast College",
+      "nickname": "Pelicans",
       "conferenceId": "c7",
       "region": "Southwest",
       "prestige": 76
     },
     {
       "id": "t057",
-      "schoolName": "Silver Lake University",
-      "nickname": "Storm",
+      "schoolName": "Queen City University",
+      "nickname": "Crowns",
       "conferenceId": "c8",
       "region": "North",
       "prestige": 51
     },
     {
       "id": "t058",
-      "schoolName": "Pioneer University",
-      "nickname": "Panthers",
+      "schoolName": "Redwood State",
+      "nickname": "Giants",
       "conferenceId": "c8",
       "region": "Northeast",
       "prestige": 53
     },
     {
       "id": "t059",
-      "schoolName": "Blue Ridge University",
-      "nickname": "Foxes",
+      "schoolName": "South Beach College",
+      "nickname": "Suns",
       "conferenceId": "c8",
       "region": "Mid-Atlantic",
       "prestige": 58
     },
     {
       "id": "t060",
-      "schoolName": "Granite State University",
-      "nickname": "Bears",
+      "schoolName": "Timberline Tech",
+      "nickname": "Lumberjacks",
       "conferenceId": "c8",
       "region": "Southeast",
       "prestige": 63
     },
     {
       "id": "t061",
-      "schoolName": "Lakeview University",
-      "nickname": "Falcons",
+      "schoolName": "Union State University",
+      "nickname": "Union",
       "conferenceId": "c8",
       "region": "Midwest",
       "prestige": 68
     },
     {
       "id": "t062",
-      "schoolName": "Summit Point University",
-      "nickname": "Rangers",
+      "schoolName": "Vista College",
+      "nickname": "Views",
       "conferenceId": "c8",
       "region": "South",
       "prestige": 73
     },
     {
       "id": "t063",
-      "schoolName": "Cedar Valley University",
-      "nickname": "Mustangs",
+      "schoolName": "Wildwood University",
+      "nickname": "Wildcats",
       "conferenceId": "c8",
       "region": "Southwest",
       "prestige": 78
     },
     {
       "id": "t064",
-      "schoolName": "Ironwood University",
-      "nickname": "Guardians",
+      "schoolName": "Yorktown State",
+      "nickname": "Colonials",
       "conferenceId": "c8",
       "region": "West",
       "prestige": 83
     },
     {
       "id": "t065",
-      "schoolName": "Blue Ridge University",
-      "nickname": "Lynx",
+      "schoolName": "Alpine University",
+      "nickname": "Skiers",
       "conferenceId": "c9",
       "region": "Northeast",
       "prestige": 58
     },
     {
       "id": "t066",
-      "schoolName": "Granite State University",
-      "nickname": "Comets",
+      "schoolName": "Boulder State",
+      "nickname": "Boulders",
       "conferenceId": "c9",
       "region": "Mid-Atlantic",
       "prestige": 60
     },
     {
       "id": "t067",
-      "schoolName": "Lakeview University",
-      "nickname": "Blaze",
+      "schoolName": "Coastal Carolina Tech",
+      "nickname": "Hurricanes",
       "conferenceId": "c9",
       "region": "Southeast",
       "prestige": 65
     },
     {
       "id": "t068",
-      "schoolName": "Summit Point University",
-      "nickname": "Hawks",
+      "schoolName": "Desert Sands College",
+      "nickname": "Scorpions",
       "conferenceId": "c9",
       "region": "Midwest",
       "prestige": 70
     },
     {
       "id": "t069",
-      "schoolName": "Cedar Valley University",
-      "nickname": "Titans",
+      "schoolName": "Eastern Shore University",
+      "nickname": "Shoremen",
       "conferenceId": "c9",
       "region": "South",
       "prestige": 75
     },
     {
       "id": "t070",
-      "schoolName": "Ironwood University",
-      "nickname": "Storm",
+      "schoolName": "Forest Hills College",
+      "nickname": "Foresters",
       "conferenceId": "c9",
       "region": "Southwest",
       "prestige": 80
     },
     {
       "id": "t071",
-      "schoolName": "Maple Coast University",
-      "nickname": "Panthers",
+      "schoolName": "Golden Gate State",
+      "nickname": "Gators",
       "conferenceId": "c9",
       "region": "West",
       "prestige": 85
     },
     {
       "id": "t072",
-      "schoolName": "Rivergate University",
-      "nickname": "Foxes",
+      "schoolName": "Hilltop University",
+      "nickname": "Hilltoppers",
       "conferenceId": "c9",
       "region": "North",
       "prestige": 90
     },
     {
       "id": "t073",
-      "schoolName": "Lakeview University",
-      "nickname": "Mustangs",
+      "schoolName": "Ivy League Tech",
+      "nickname": "Engineers",
       "conferenceId": "c10",
       "region": "Mid-Atlantic",
       "prestige": 65
     },
     {
       "id": "t074",
-      "schoolName": "Summit Point University",
-      "nickname": "Guardians",
+      "schoolName": "Jacksonville State",
+      "nickname": "Jaguars",
       "conferenceId": "c10",
       "region": "Southeast",
       "prestige": 67
     },
     {
       "id": "t075",
-      "schoolName": "Cedar Valley University",
-      "nickname": "Mariners",
+      "schoolName": "Kent Valley College",
+      "nickname": "Kings",
       "conferenceId": "c10",
       "region": "Midwest",
       "prestige": 72
     },
     {
       "id": "t076",
-      "schoolName": "Ironwood University",
-      "nickname": "Wolves",
+      "schoolName": "Lincoln University",
+      "nickname": "Logs",
       "conferenceId": "c10",
       "region": "South",
       "prestige": 77
     },
     {
       "id": "t077",
-      "schoolName": "Maple Coast University",
-      "nickname": "Knights",
+      "schoolName": "Metro State",
+      "nickname": "Metros",
       "conferenceId": "c10",
       "region": "Southwest",
       "prestige": 82
     },
     {
       "id": "t078",
-      "schoolName": "Rivergate University",
-      "nickname": "Lynx",
+      "schoolName": "New England Tech",
+      "nickname": "Patriots",
       "conferenceId": "c10",
       "region": "West",
       "prestige": 87
     },
     {
       "id": "t079",
-      "schoolName": "Stonebridge University",
-      "nickname": "Comets",
+      "schoolName": "Old Dominion College",
+      "nickname": "Monarchs",
       "conferenceId": "c10",
       "region": "North",
       "prestige": 46
     },
     {
       "id": "t080",
-      "schoolName": "Northfield University",
-      "nickname": "Blaze",
+      "schoolName": "Prairie State",
+      "nickname": "Prairie Dogs",
       "conferenceId": "c10",
       "region": "Northeast",
       "prestige": 51
     },
     {
       "id": "t081",
-      "schoolName": "Cedar Valley University",
-      "nickname": "Panthers",
+      "schoolName": "Quincy College",
+      "nickname": "Quakers",
       "conferenceId": "c11",
       "region": "Southeast",
       "prestige": 72
     },
     {
       "id": "t082",
-      "schoolName": "Ironwood University",
-      "nickname": "Foxes",
+      "schoolName": "Rocky Mountain Tech",
+      "nickname": "Rockies",
       "conferenceId": "c11",
       "region": "Midwest",
       "prestige": 74
     },
     {
       "id": "t083",
-      "schoolName": "Maple Coast University",
-      "nickname": "Bears",
+      "schoolName": "Savannah State",
+      "nickname": "Tigers",
       "conferenceId": "c11",
       "region": "South",
       "prestige": 79
     },
     {
       "id": "t084",
-      "schoolName": "Rivergate University",
-      "nickname": "Falcons",
+      "schoolName": "Teton University",
+      "nickname": "Peaks",
       "conferenceId": "c11",
       "region": "Southwest",
       "prestige": 84
     },
     {
       "id": "t085",
-      "schoolName": "Stonebridge University",
-      "nickname": "Rangers",
+      "schoolName": "Upper Valley College",
+      "nickname": "Vanguards",
       "conferenceId": "c11",
       "region": "West",
       "prestige": 89
     },
     {
       "id": "t086",
-      "schoolName": "Northfield University",
-      "nickname": "Mustangs",
+      "schoolName": "Virginia Coast University",
+      "nickname": "Commodores",
       "conferenceId": "c11",
       "region": "North",
       "prestige": 48
     },
     {
       "id": "t087",
-      "schoolName": "Easton University",
-      "nickname": "Guardians",
+      "schoolName": "Western Plains State",
+      "nickname": "Winds",
       "conferenceId": "c11",
       "region": "Northeast",
       "prestige": 53
     },
     {
       "id": "t088",
-      "schoolName": "Westbridge University",
-      "nickname": "Mariners",
+      "schoolName": "Xavier Tech",
+      "nickname": "Musketeers",
       "conferenceId": "c11",
       "region": "Mid-Atlantic",
       "prestige": 58
     },
     {
       "id": "t089",
-      "schoolName": "Maple Coast University",
-      "nickname": "Comets",
+      "schoolName": "Yellow River College",
+      "nickname": "Floods",
       "conferenceId": "c12",
       "region": "Midwest",
       "prestige": 79
     },
     {
       "id": "t090",
-      "schoolName": "Rivergate University",
-      "nickname": "Blaze",
+      "schoolName": "Zion State",
+      "nickname": "Zions",
       "conferenceId": "c12",
       "region": "South",
       "prestige": 81
     },
     {
       "id": "t091",
-      "schoolName": "Stonebridge University",
-      "nickname": "Hawks",
+      "schoolName": "Atlantic Coast University",
+      "nickname": "Atlantic",
       "conferenceId": "c12",
       "region": "Southwest",
       "prestige": 86
     },
     {
       "id": "t092",
-      "schoolName": "Northfield University",
-      "nickname": "Titans",
+      "schoolName": "Bayou State",
+      "nickname": "Gators",
       "conferenceId": "c12",
       "region": "West",
       "prestige": 45
     },
     {
       "id": "t093",
-      "schoolName": "Easton University",
-      "nickname": "Storm",
+      "schoolName": "Central City College",
+      "nickname": "Centurions",
       "conferenceId": "c12",
       "region": "North",
       "prestige": 50
     },
     {
       "id": "t094",
-      "schoolName": "Westbridge University",
-      "nickname": "Panthers",
+      "schoolName": "Dakota State",
+      "nickname": "Dakotas",
       "conferenceId": "c12",
       "region": "Northeast",
       "prestige": 55
     },
     {
       "id": "t095",
-      "schoolName": "Fairmont University",
-      "nickname": "Foxes",
+      "schoolName": "Empire City University",
+      "nickname": "Emperors",
       "conferenceId": "c12",
       "region": "Mid-Atlantic",
       "prestige": 60
     },
     {
       "id": "t096",
-      "schoolName": "Oakridge University",
-      "nickname": "Bears",
+      "schoolName": "Florida Tech",
+      "nickname": "Flamingos",
       "conferenceId": "c12",
       "region": "Southeast",
       "prestige": 65
     },
     {
       "id": "t097",
-      "schoolName": "Stonebridge University",
-      "nickname": "Guardians",
+      "schoolName": "Great Lakes College",
+      "nickname": "Lakers",
       "conferenceId": "c13",
       "region": "South",
       "prestige": 86
     },
     {
       "id": "t098",
-      "schoolName": "Northfield University",
-      "nickname": "Mariners",
+      "schoolName": "Hudson Valley State",
+      "nickname": "Dutchmen",
       "conferenceId": "c13",
       "region": "Southwest",
       "prestige": 88
     },
     {
       "id": "t099",
-      "schoolName": "Easton University",
-      "nickname": "Wolves",
+      "schoolName": "Idaho Tech",
+      "nickname": "Potatoes",
       "conferenceId": "c13",
       "region": "West",
       "prestige": 47
     },
     {
       "id": "t100",
-      "schoolName": "Westbridge University",
-      "nickname": "Knights",
+      "schoolName": "Jersey Shore University",
+      "nickname": "Shores",
       "conferenceId": "c13",
       "region": "North",
       "prestige": 52
     },
     {
       "id": "t101",
-      "schoolName": "Fairmont University",
-      "nickname": "Lynx",
+      "schoolName": "Kansas Plains College",
+      "nickname": "Jayhawks",
       "conferenceId": "c13",
       "region": "Northeast",
       "prestige": 57
     },
     {
       "id": "t102",
-      "schoolName": "Oakridge University",
-      "nickname": "Comets",
+      "schoolName": "Louisiana State Tech",
+      "nickname": "Bayous",
       "conferenceId": "c13",
       "region": "Mid-Atlantic",
       "prestige": 62
     },
     {
       "id": "t103",
-      "schoolName": "Silver Lake University",
-      "nickname": "Blaze",
+      "schoolName": "Michigan Coast University",
+      "nickname": "Wolverines",
       "conferenceId": "c13",
       "region": "Southeast",
       "prestige": 67
     },
     {
       "id": "t104",
-      "schoolName": "Pioneer University",
-      "nickname": "Hawks",
+      "schoolName": "Nevada Desert State",
+      "nickname": "Gamblers",
       "conferenceId": "c13",
       "region": "Midwest",
       "prestige": 72
     },
     {
       "id": "t105",
-      "schoolName": "Easton University",
-      "nickname": "Foxes",
+      "schoolName": "Ohio River College",
+      "nickname": "Buckeyes",
       "conferenceId": "c14",
       "region": "Southwest",
       "prestige": 93
     },
     {
       "id": "t106",
-      "schoolName": "Westbridge University",
-      "nickname": "Bears",
+      "schoolName": "Pennsylvania Tech",
+      "nickname": "Quakers",
       "conferenceId": "c14",
       "region": "West",
       "prestige": 49
     },
     {
       "id": "t107",
-      "schoolName": "Fairmont University",
-      "nickname": "Falcons",
+      "schoolName": "Quebec Border University",
+      "nickname": "Canadiens",
       "conferenceId": "c14",
       "region": "North",
       "prestige": 54
     },
     {
       "id": "t108",
-      "schoolName": "Oakridge University",
-      "nickname": "Rangers",
+      "schoolName": "Rhode Island State",
+      "nickname": "Reds",
       "conferenceId": "c14",
       "region": "Northeast",
       "prestige": 59
     },
     {
       "id": "t109",
-      "schoolName": "Silver Lake University",
-      "nickname": "Mustangs",
+      "schoolName": "South Carolina Tech",
+      "nickname": "Gamecocks",
       "conferenceId": "c14",
       "region": "Mid-Atlantic",
       "prestige": 64
     },
     {
       "id": "t110",
-      "schoolName": "Pioneer University",
-      "nickname": "Guardians",
+      "schoolName": "Texas Plains College",
+      "nickname": "Longhorns",
       "conferenceId": "c14",
       "region": "Southeast",
       "prestige": 69
     },
     {
       "id": "t111",
-      "schoolName": "Blue Ridge University",
-      "nickname": "Mariners",
+      "schoolName": "Utah Valley University",
+      "nickname": "Utes",
       "conferenceId": "c14",
       "region": "Midwest",
       "prestige": 74
     },
     {
       "id": "t112",
-      "schoolName": "Granite State University",
-      "nickname": "Wolves",
+      "schoolName": "Vermont State",
+      "nickname": "Greens",
       "conferenceId": "c14",
       "region": "South",
       "prestige": 79
     },
     {
       "id": "t113",
-      "schoolName": "Fairmont University",
-      "nickname": "Blaze",
+      "schoolName": "Washington Coast College",
+      "nickname": "Evergreens",
       "conferenceId": "c15",
       "region": "West",
       "prestige": 54
     },
     {
       "id": "t114",
-      "schoolName": "Oakridge University",
-      "nickname": "Hawks",
+      "schoolName": "Appalachian State Tech",
+      "nickname": "Mountaineers",
       "conferenceId": "c15",
       "region": "North",
       "prestige": 56
     },
     {
       "id": "t115",
-      "schoolName": "Silver Lake University",
-      "nickname": "Titans",
+      "schoolName": "Bison Range University",
+      "nickname": "Bison",
       "conferenceId": "c15",
       "region": "Northeast",
       "prestige": 61
     },
     {
       "id": "t116",
-      "schoolName": "Pioneer University",
-      "nickname": "Storm",
+      "schoolName": "Cape Cod College",
+      "nickname": "Cod",
       "conferenceId": "c15",
       "region": "Mid-Atlantic",
       "prestige": 66
     },
     {
       "id": "t117",
-      "schoolName": "Blue Ridge University",
-      "nickname": "Panthers",
+      "schoolName": "Delaware Valley State",
+      "nickname": "Blue Hens",
       "conferenceId": "c15",
       "region": "Southeast",
       "prestige": 71
     },
     {
       "id": "t118",
-      "schoolName": "Granite State University",
-      "nickname": "Foxes",
+      "schoolName": "Erie Lake University",
+      "nickname": "Great Lakers",
       "conferenceId": "c15",
       "region": "Midwest",
       "prestige": 76
     },
     {
       "id": "t119",
-      "schoolName": "Lakeview University",
-      "nickname": "Bears",
+      "schoolName": "Finger Lakes Tech",
+      "nickname": "Fingers",
       "conferenceId": "c15",
       "region": "South",
       "prestige": 81
     },
     {
       "id": "t120",
-      "schoolName": "Summit Point University",
-      "nickname": "Falcons",
+      "schoolName": "Grand Canyon College",
+      "nickname": "Canyons",
       "conferenceId": "c15",
       "region": "Southwest",
       "prestige": 86
     },
     {
       "id": "t121",
-      "schoolName": "Silver Lake University",
-      "nickname": "Mariners",
+      "schoolName": "Hawaii Pacific State",
+      "nickname": "Surfers",
       "conferenceId": "c16",
       "region": "North",
       "prestige": 61
     },
     {
       "id": "t122",
-      "schoolName": "Pioneer University",
-      "nickname": "Wolves",
+      "schoolName": "Iowa Corn College",
+      "nickname": "Cornhuskers",
       "conferenceId": "c16",
       "region": "Northeast",
       "prestige": 63
     },
     {
       "id": "t123",
-      "schoolName": "Blue Ridge University",
-      "nickname": "Knights",
+      "schoolName": "Kentucky Bluegrass Tech",
+      "nickname": "Thoroughbreds",
       "conferenceId": "c16",
       "region": "Mid-Atlantic",
       "prestige": 68
     },
     {
       "id": "t124",
-      "schoolName": "Granite State University",
-      "nickname": "Lynx",
+      "schoolName": "Maine Coast University",
+      "nickname": "Lobsters",
       "conferenceId": "c16",
       "region": "Southeast",
       "prestige": 73
     },
     {
       "id": "t125",
-      "schoolName": "Lakeview University",
-      "nickname": "Comets",
+      "schoolName": "New York City College",
+      "nickname": "Skyscrapers",
       "conferenceId": "c16",
       "region": "Midwest",
       "prestige": 78
     },
     {
       "id": "t126",
-      "schoolName": "Summit Point University",
-      "nickname": "Blaze",
+      "schoolName": "Oregon Trail State",
+      "nickname": "Trailers",
       "conferenceId": "c16",
       "region": "South",
       "prestige": 83
     },
     {
       "id": "t127",
-      "schoolName": "Cedar Valley University",
-      "nickname": "Hawks",
+      "schoolName": "Puget Sound University",
+      "nickname": "Sounds",
       "conferenceId": "c16",
       "region": "Southwest",
       "prestige": 88
     },
     {
       "id": "t128",
-      "schoolName": "Ironwood University",
-      "nickname": "Titans",
+      "schoolName": "Rio Grande Tech",
+      "nickname": "Rios",
       "conferenceId": "c16",
       "region": "West",
       "prestige": 47

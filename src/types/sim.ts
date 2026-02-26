@@ -48,6 +48,15 @@ export interface Recruit {
   region: string;
   potential: number;
   committedTeamId: string | null;
+  motivations: RecruitMotivation[];
+  dealbreaker: RecruitingPitch | null;
+}
+
+export type RecruitingPitch = 'PLAYING_TIME' | 'PROXIMITY' | 'ACADEMIC' | 'PRESTIGE' | 'CHAMPIONSHIP' | 'CAMPUS_LIFE';
+
+export interface RecruitMotivation {
+  pitch: RecruitingPitch;
+  importance: 'HIGH' | 'MEDIUM' | 'LOW';
 }
 
 export interface ScheduledGame {

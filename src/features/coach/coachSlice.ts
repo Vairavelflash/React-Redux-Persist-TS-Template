@@ -1,7 +1,8 @@
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
-import { Recruit, Tactics } from '../../types/sim';
+import { Recruit, RecruitingPitch, Tactics } from '../../types/sim';
 
-import { generateRecruitPool } from '../../sim/recruiting';
+import { generateRecruitPool, getTeamPitchGrade } from '../../sim/recruiting';
+import { simulateRecruitingWeek } from '../../sim/recruitingWeek';
 import { RootState } from '../../store/store';
 
 export const WEEKLY_HOURS_CAP = 120;
@@ -31,7 +32,9 @@ export interface CoachState {
   recruitingSeed: number;
   recruitingWeekIndex: number;
   weeklyHoursByRecruitId: Record<string, number>;
+  activePitchesByRecruitId: Record<string, RecruitingPitch>;
   interestByRecruitId: Record<string, number>;
+  interestChangeByRecruitId: Record<string, number>;
 }
 
 const initialState: CoachState = {
@@ -50,7 +53,9 @@ const initialState: CoachState = {
   recruitingSeed: 2026,
   recruitingWeekIndex: 0,
   weeklyHoursByRecruitId: {},
+  activePitchesByRecruitId: {},
   interestByRecruitId: {},
+  interestChangeByRecruitId: {},
 };
 
 const coachSlice = createSlice({
@@ -83,19 +88,27 @@ const coachSlice = createSlice({
         state.recruitPool = generateRecruitPool(action.payload.seed);
         state.boardRecruitIds = [];
         state.weeklyHoursByRecruitId = {};
+        state.activePitchesByRecruitId = {};
         state.interestByRecruitId = {};
+        state.interestChangeByRecruitId = {};
         state.recruitingWeekIndex = 0;
     },
-    addRecruitToBoard: (state, action: PayloadAction<string>) => {
-        if (!state.boardRecruitIds.includes(action.payload) && state.boardRecruitIds.length < 25) {
-            state.boardRecruitIds.push(action.payload);
-            // Default 1 hour? Or 0
-            state.weeklyHoursByRecruitId[action.payload] = 0;
+    addRecruitToBoard: (state, action: PayloadAction<{ recruitId: string; startingInterest: number }>) => {
+        if (!state.boardRecruitIds.includes(action.payload.recruitId) && state.boardRecruitIds.length < 25) {
+            state.boardRecruitIds.push(action.payload.recruitId);
+            state.weeklyHoursByRecruitId[action.payload.recruitId] = 0;
+            state.interestByRecruitId[action.payload.recruitId] = action.payload.startingInterest;
+            state.interestChangeByRecruitId[action.payload.recruitId] = 0;
         }
     },
     removeRecruitFromBoard: (state, action: PayloadAction<string>) => {
         state.boardRecruitIds = state.boardRecruitIds.filter(id => id !== action.payload);
         delete state.weeklyHoursByRecruitId[action.payload];
+        delete state.activePitchesByRecruitId[action.payload];
+        delete state.interestChangeByRecruitId[action.payload];
+        // Keep interest in case they are re-added? Or clear it.
+        // Clearing it makes sense to "reset" progress if dropped, though maybe harsh.
+        delete state.interestByRecruitId[action.payload];
     },
     setRecruitHours: (state, action: PayloadAction<{ recruitId: string; hours: number }>) => {
         const { recruitId, hours } = action.payload;
@@ -117,6 +130,9 @@ const coachSlice = createSlice({
 
         state.weeklyHoursByRecruitId[recruitId] = validatedHours;
     },
+    setRecruitPitch: (state, action: PayloadAction<{ recruitId: string; pitch: RecruitingPitch }>) => {
+        state.activePitchesByRecruitId[action.payload.recruitId] = action.payload.pitch;
+    },
     applyRecruitingUpdates: (state, action: PayloadAction<{
         interestUpdates: Record<string, number>;
         commitments: { recruitId: string; teamId: string }[];
@@ -125,6 +141,8 @@ const coachSlice = createSlice({
 
         // Apply interest updates
         Object.entries(action.payload.interestUpdates).forEach(([recruitId, interest]) => {
+            const current = state.interestByRecruitId[recruitId] || 0;
+            state.interestChangeByRecruitId[recruitId] = interest - current;
             state.interestByRecruitId[recruitId] = interest;
         });
 
@@ -148,6 +166,7 @@ export const {
     addRecruitToBoard,
     removeRecruitFromBoard,
     setRecruitHours,
+    setRecruitPitch,
     applyRecruitingUpdates
 } = coachSlice.actions;
 
@@ -157,35 +176,70 @@ export const advanceRecruitingWeek = createAsyncThunk(
     async (_, { getState, dispatch }) => {
         const state = getState() as RootState;
         const coach = state.coach;
-        const interestUpdates: Record<string, number> = {};
-        const commitments: { recruitId: string; teamId: string }[] = [];
+        const teams = state.league.teams;
+
+        const selectedTeam = teams.find(t => t.id === coach.selectedTeamId);
+        if (!selectedTeam) return;
+
+        // Generate grades
+        const pitchGradesByRecruitId: Record<string, string> = {};
+        const dealbreakerViolationsByRecruitId: Record<string, boolean> = {};
 
         coach.boardRecruitIds.forEach(recruitId => {
-            const hours = coach.weeklyHoursByRecruitId[recruitId] || 0;
-            const currentInterest = coach.interestByRecruitId[recruitId] || 0;
-            // Simple formula: 1 hour = 2 interest points + bonus
-            const gain = hours * 2 + (Math.random() * 5); // Random logic in thunk is OK
-            const newInterest = Math.min(100, Math.round(currentInterest + gain));
-            interestUpdates[recruitId] = newInterest;
+             const recruit = coach.recruitPool.find(r => r.id === recruitId);
+             if (!recruit) return;
 
-            if (newInterest >= 100 && coach.selectedTeamId) {
-                 const recruit = coach.recruitPool.find(r => r.id === recruitId);
-                 if (recruit && !recruit.committedTeamId) {
-                     commitments.push({ recruitId, teamId: coach.selectedTeamId });
+             const activePitch = coach.activePitchesByRecruitId[recruitId];
+             if (activePitch) {
+                 pitchGradesByRecruitId[recruitId] = getTeamPitchGrade(selectedTeam, activePitch, recruit);
+             }
+
+             // Check dealbreaker
+             if (recruit.dealbreaker) {
+                 const grade = getTeamPitchGrade(selectedTeam, recruit.dealbreaker, recruit);
+                 // If grade is D or F, it's a violation
+                 if (grade === 'D' || grade === 'F') {
+                     dealbreakerViolationsByRecruitId[recruitId] = true;
                  }
+             }
+        });
+
+        const result = simulateRecruitingWeek(
+            coach.recruitPool,
+            coach.boardRecruitIds,
+            coach.weeklyHoursByRecruitId,
+            coach.activePitchesByRecruitId,
+            pitchGradesByRecruitId,
+            dealbreakerViolationsByRecruitId,
+            coach.interestByRecruitId,
+            coach.selectedTeamId,
+            coach.recruitingSeed,
+            coach.recruitingWeekIndex
+        );
+
+        const commitments: { recruitId: string; teamId: string }[] = [];
+
+        Object.entries(result.committedTeamByRecruitId).forEach(([recruitId, teamId]) => {
+            if (teamId) {
+                commitments.push({ recruitId, teamId });
             }
         });
 
-        coach.recruitPool.forEach(recruit => {
-            if (!recruit.committedTeamId && !commitments.find(c => c.recruitId === recruit.id)) {
-                 if (Math.random() < 0.05) {
-                     // Assume committed to CPU for now
+        // Sim CPU commitments (simple random fallback for now if not covered by simRecruitingWeek)
+        // Actually simRecruitingWeek doesn't handle CPU "steals" yet, just user logic + decay.
+        // Let's keep the random CPU commit logic for off-board recruits for now.
+         coach.recruitPool.forEach(recruit => {
+            if (!recruit.committedTeamId && !commitments.find(c => c.recruitId === recruit.id) && !coach.boardRecruitIds.includes(recruit.id)) {
+                 if (Math.random() < 0.02) {
                      commitments.push({ recruitId: recruit.id, teamId: 'CPU' });
                  }
             }
         });
 
-        dispatch(applyRecruitingUpdates({ interestUpdates, commitments }));
+        dispatch(applyRecruitingUpdates({
+            interestUpdates: result.interestByRecruitId,
+            commitments
+        }));
     }
 );
 
