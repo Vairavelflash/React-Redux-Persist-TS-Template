@@ -1,8 +1,7 @@
 import type { Position, Recruit, RecruitingPitch, RecruitMotivation, Team } from '../types/sim.ts';
 import { makeRng, pickOne, randInt } from './rng.ts';
+import namesData from '../data/names.json' with { type: 'json' };
 
-const FIRST_NAMES = ['Jalen', 'Mason', 'Ty', 'Cooper', 'Evan', 'Noah', 'Chase', 'Dylan', 'Kade', 'Liam', 'Owen', 'Brady'];
-const LAST_NAMES = ['Hale', 'Rivers', 'Dalton', 'Pierce', 'Maddox', 'Sloan', 'Whitaker', 'Cross', 'Mercer', 'Keane', 'Foster', 'Wells'];
 const REGIONS = ['Northeast', 'Mid-Atlantic', 'South', 'Midwest', 'West'];
 const POSITIONS: Position[] = ['A', 'M', 'D', 'LSM', 'FO', 'G'];
 const PITCHES: RecruitingPitch[] = ['PLAYING_TIME', 'PROXIMITY', 'ACADEMIC', 'PRESTIGE', 'CHAMPIONSHIP', 'CAMPUS_LIFE'];
@@ -29,7 +28,7 @@ export function generateRecruitPool(seed: number, count = 180): Recruit[] {
 
     return {
       id: `recruit-${seed}-${index + 1}`,
-      name: `${pickOne(rng, FIRST_NAMES)} ${pickOne(rng, LAST_NAMES)}`,
+      name: `${pickOne(rng, namesData.firstNames)} ${pickOne(rng, namesData.lastNames)}`,
       position: pickOne(rng, POSITIONS),
       stars,
       region: pickOne(rng, REGIONS),
