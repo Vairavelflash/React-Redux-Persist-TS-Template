@@ -1,3 +1,6 @@
+import re
+import traceback
+from pathlib import Path
 
 import re
 
@@ -37,35 +40,38 @@ def test_recruiting_verification(page):
     # Initialize Board
     print("Initializing Board...")
     seed_input = page.get_by_placeholder("Seed")
+    expect(seed_input).to_be_visible()
     seed_input.fill("2026")
-    page.get_by_role("button", name="Start Recruiting").click()
 
-    # Verify UI
-    print("Verifying UI...")
-    # Check for Competition Header in top table
+    start_button = page.get_by_role("button", name="Start Recruiting")
+    expect(start_button).to_be_visible()
+    start_button.click()
+
+
+def _verify_board_and_add_recruit(page) -> None:
+    print("Verifying board and adding recruit...")
     target_table = page.locator(".card").nth(1).get_by_role("table")
-    expect(target_table.get_by_text("Competition")).to_be_visible()
+    expect(target_table.get_by_role("columnheader", name="Competition")).to_be_visible()
 
-    # Add a recruit
-    print("Adding Recruit...")
     pool_table = page.locator(".card").nth(2).get_by_role("table")
-    # Add first available
     pool_table.get_by_role("button", name="Add").first.click()
 
-    # Verify Recruit in Target List
-    print("Verifying Recruit Added...")
-    expect(target_table.get_by_role("row")).to_have_count(2) # Header + 1 Row
+    expect(target_table.get_by_role("row")).to_have_count(2)
 
-    # Verify Competition Column Data
-    print("Verifying Competition Data...")
     first_data_row = target_table.get_by_role("row").nth(1)
     comp_cell = first_data_row.get_by_role("cell").nth(1)
     expect(comp_cell).to_have_text(re.compile(r"\S+"))
 
-    # Screenshot
-    print("Taking Screenshot...")
-    page.screenshot(path="verification_recruiting.png", full_page=True)
+def test_recruiting_verification(page) -> None:
+    _open_career_setup(page)
+    _complete_career_setup(page)
+    _initialize_recruiting(page)
+    _verify_board_and_add_recruit(page)
+
+    print("Taking verification screenshot...")
+    _save_screenshot(page, VERIFICATION_SCREENSHOT)
     print("Done!")
+
 
 if __name__ == "__main__":
     with sync_playwright() as p:
