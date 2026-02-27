@@ -36,8 +36,34 @@ export function generateRecruitPool(seed: number, count = 180): Recruit[] {
       committedTeamId: null,
       motivations,
       dealbreaker,
+      interestByTeamId: {},
     };
   });
+}
+
+export function generateSuitors(recruit: Recruit, teams: Team[], seed: number): Record<string, number> {
+  const rng = makeRng(seed);
+  const suitors: Record<string, number> = {};
+
+  // Score all teams for fit
+  const scoredTeams = teams
+    .map((team) => ({
+      team,
+      fit: estimateRecruitFit(recruit, team),
+      noise: randInt(rng, -10, 10),
+    }))
+    .sort((a, b) => b.fit + b.noise - (a.fit + a.noise));
+
+  // Pick top 3-5 teams as initial suitors
+  const count = Math.min(scoredTeams.length, randInt(rng, 3, 5));
+  for (let i = 0; i < count; i++) {
+    const { team, fit } = scoredTeams[i];
+    // Initial interest: 0 to 20 base + fit/10
+    const startInterest = Math.max(0, Math.min(40, randInt(rng, 5, 25) + Math.round(fit / 20)));
+    suitors[team.id] = startInterest;
+  }
+
+  return suitors;
 }
 
 export function estimateRecruitFit(recruit: Recruit, team: Team): number {

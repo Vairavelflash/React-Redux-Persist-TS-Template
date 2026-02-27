@@ -1,8 +1,10 @@
 import type { Recruit, RecruitingPitch, TeamId } from '../types/sim.ts';
 import { makeRng } from './rng.ts';
 
+import { randInt } from './rng.ts';
+
 export interface RecruitingWeekResult {
-  interestByRecruitId: Record<string, number>;
+  interestByRecruitId: Record<string, Record<string, number>>; // recruitId -> teamId -> interest
   committedTeamByRecruitId: Record<string, TeamId | null>;
 }
 
@@ -31,7 +33,6 @@ export function simulateRecruitingWeek(
   activePitchesByRecruitId: Record<string, RecruitingPitch | undefined>,
   pitchGradesByRecruitId: Record<string, string>,
   dealbreakerViolationsByRecruitId: Record<string, boolean>,
-  currentInterestByRecruitId: Record<string, number>,
   selectedTeamId: TeamId | null,
   seed: number,
   weekIndex: number,
@@ -39,52 +40,91 @@ export function simulateRecruitingWeek(
   const rng = makeRng(seed + weekIndex * 9973);
   const boardSet = new Set(boardRecruitIds);
 
-  const interestByRecruitId: Record<string, number> = {};
+  const interestByRecruitId: Record<string, Record<string, number>> = {};
   const committedTeamByRecruitId: Record<string, TeamId | null> = {};
 
   recruits.forEach((recruit) => {
-    const prevInterest = currentInterestByRecruitId[recruit.id] ?? 0;
-    const hours = boardSet.has(recruit.id) ? weeklyHoursByRecruitId[recruit.id] ?? 0 : 0;
-    const activePitch = activePitchesByRecruitId[recruit.id];
-    const pitchGrade = pitchGradesByRecruitId[recruit.id];
+    // If already committed, skip logic but preserve state
+    if (recruit.committedTeamId) {
+      committedTeamByRecruitId[recruit.id] = recruit.committedTeamId;
+      interestByRecruitId[recruit.id] = recruit.interestByTeamId;
+      return;
+    }
 
-    let weeklyGain = 0;
+    const nextInterestMap: Record<string, number> = { ...recruit.interestByTeamId };
 
-    if (hours > 0) {
-      // Tuned down constants:
-      // Hours: 0.5 per hour (20 hours = 10 pts)
-      // Stars: 0.2 per star (5 stars = 1 pt)
-      // Random: -1 to +1
-      const baseGain = hours * 0.5 + recruit.stars * 0.2 + (rng() * 2 - 1);
+    // --- 1. User Team Logic ---
+    if (selectedTeamId) {
+      const prevInterest = nextInterestMap[selectedTeamId] ?? 0;
+      const hours = boardSet.has(recruit.id) ? weeklyHoursByRecruitId[recruit.id] ?? 0 : 0;
+      const activePitch = activePitchesByRecruitId[recruit.id];
+      const pitchGrade = pitchGradesByRecruitId[recruit.id];
 
-      let pitchBonus = 0;
-      if (activePitch) {
-        const motivation = recruit.motivations.find(m => m.pitch === activePitch);
-        const importanceMult = getImportanceMultiplier(motivation?.importance);
-        const gradeMult = getGradeMultiplier(pitchGrade);
+      let weeklyGain = 0;
 
-        pitchBonus = baseGain * (importanceMult * gradeMult - 1);
+      if (hours > 0) {
+        // Tuned down constants:
+        // Hours: 0.5 per hour (20 hours = 10 pts)
+        // Stars: 0.2 per star (5 stars = 1 pt)
+        // Random: -1 to +1
+        const baseGain = hours * 0.5 + recruit.stars * 0.2 + (rng() * 2 - 1);
+
+        let pitchBonus = 0;
+        if (activePitch) {
+          const motivation = recruit.motivations.find(m => m.pitch === activePitch);
+          const importanceMult = getImportanceMultiplier(motivation?.importance);
+          const gradeMult = getGradeMultiplier(pitchGrade);
+
+          pitchBonus = baseGain * (importanceMult * gradeMult - 1);
+        }
+
+        weeklyGain = Math.max(0, Math.round(baseGain + pitchBonus));
       }
 
-      weeklyGain = Math.max(0, Math.round(baseGain + pitchBonus));
+      if (dealbreakerViolationsByRecruitId[recruit.id]) {
+        weeklyGain = -5;
+      }
+
+      const decay = boardSet.has(recruit.id) ? 0 : 2;
+      const nextInterest = Math.max(0, Math.min(100, prevInterest + weeklyGain - decay));
+      nextInterestMap[selectedTeamId] = nextInterest;
     }
 
-    if (dealbreakerViolationsByRecruitId[recruit.id]) {
-      // If dealbreaker is violated, interest crashes or gain is negative
-      // Let's make it lose interest rapidly (-5 per week) regardless of hours
-      weeklyGain = -5;
-    }
+    // --- 2. CPU Teams Logic ---
+    // Simple logic: existing suitors grow interest slowly (3-6 pts)
+    Object.keys(nextInterestMap).forEach(teamId => {
+        if (teamId === selectedTeamId) return; // Skip user
 
-    const decay = boardSet.has(recruit.id) ? 0 : 2;
-    const nextInterest = Math.max(0, Math.min(100, prevInterest + weeklyGain - decay));
+        const prev = nextInterestMap[teamId];
+        // CPU teams "try" ~80% of the time, gaining 3-6 points
+        const effort = rng();
+        let gain = 0;
+        if (effort > 0.2) {
+             gain = randInt(rng, 3, 6);
+        } else {
+             // Occasionally they lose interest or stagnate
+             gain = randInt(rng, -2, 1);
+        }
 
-    let committedTeamId: TeamId | null = recruit.committedTeamId;
-    if (!committedTeamId && selectedTeamId && nextInterest >= 100) {
-      committedTeamId = selectedTeamId;
-    }
+        const next = Math.max(0, Math.min(100, prev + gain));
+        nextInterestMap[teamId] = next;
+    });
 
-    interestByRecruitId[recruit.id] = nextInterest;
-    committedTeamByRecruitId[recruit.id] = committedTeamId;
+    // --- 3. Commitment Check ---
+    let bestTeamId: string | null = null;
+    let bestInterest = -1;
+
+    Object.entries(nextInterestMap).forEach(([teamId, interest]) => {
+        if (interest >= 100) {
+            if (interest > bestInterest) {
+                bestInterest = interest;
+                bestTeamId = teamId;
+            }
+        }
+    });
+
+    interestByRecruitId[recruit.id] = nextInterestMap;
+    committedTeamByRecruitId[recruit.id] = bestTeamId;
   });
 
   return { interestByRecruitId, committedTeamByRecruitId };

@@ -50,6 +50,7 @@ export interface Recruit {
   committedTeamId: string | null;
   motivations: RecruitMotivation[];
   dealbreaker: RecruitingPitch | null;
+  interestByTeamId: Record<string, number>;
 }
 
 export type RecruitingPitch = 'PLAYING_TIME' | 'PROXIMITY' | 'ACADEMIC' | 'PRESTIGE' | 'CHAMPIONSHIP' | 'CAMPUS_LIFE';

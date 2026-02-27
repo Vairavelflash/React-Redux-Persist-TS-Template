@@ -10,6 +10,7 @@ import {
   WEEKLY_HOURS_CAP,
   MAX_HOURS_PER_RECRUIT,
 } from '../features/coach/coachSlice';
+import { runCareerWeeklyCycle } from '../features/coach/careerThunks';
 import { selectTeamRecords } from '../features/season/seasonSlice';
 import { estimateRecruitFit, getTeamPitchGrade } from '../sim/recruiting';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
@@ -74,10 +75,19 @@ function CoachCareerPage() {
         .map((recruit) => {
           const fit = selectedTeam ? estimateRecruitFit(recruit, selectedTeam) : 0;
           const hours = coach.weeklyHoursByRecruitId[recruit.id] ?? 0;
-          const interest = coach.interestByRecruitId[recruit.id] ?? 0;
-          const change = coach.interestChangeByRecruitId[recruit.id] ?? 0;
+          const interestMap = recruit.interestByTeamId || {};
+          const interest = selectedTeam ? (interestMap[selectedTeam.id] || 0) : 0;
           const activePitch = coach.activePitchesByRecruitId[recruit.id];
           const pitchGrade = selectedTeam && activePitch ? getTeamPitchGrade(selectedTeam, activePitch, recruit) : '-';
+
+          // Sort suitors
+          const topSuitors = Object.entries(interestMap)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 3)
+            .map(([teamId, score]) => {
+                const team = teams.find(t => t.id === teamId);
+                return { name: team?.schoolName || 'Unknown', score };
+            });
 
           let dealbreakerWarning = false;
           if (selectedTeam && recruit.dealbreaker) {
@@ -87,10 +97,10 @@ function CoachCareerPage() {
               }
           }
 
-          return { recruit, fit, hours, interest, change, activePitch, pitchGrade, dealbreakerWarning };
+          return { recruit, fit, hours, interest, activePitch, pitchGrade, dealbreakerWarning, topSuitors };
         })
         .sort((a, b) => b.interest - a.interest);
-  }, [boardRecruits, coach.weeklyHoursByRecruitId, coach.interestByRecruitId, coach.interestChangeByRecruitId, coach.activePitchesByRecruitId, selectedTeam]);
+  }, [boardRecruits, coach.weeklyHoursByRecruitId, coach.recruitPool, coach.activePitchesByRecruitId, selectedTeam, teams]);
 
   const committedToUserCount = coach.recruitPool.filter((recruit) => recruit.committedTeamId && recruit.committedTeamId === coach.selectedTeamId).length;
 
@@ -105,9 +115,19 @@ function CoachCareerPage() {
   function onAdd(recruit: typeof visibleRecruits[0]) {
     if (selectedTeam) {
         const fit = estimateRecruitFit(recruit, selectedTeam);
-        const startingInterest = Math.min(60, Math.round(fit * 0.6 + recruit.stars * 2));
+        // Starting interest: 0 to 40 roughly based on fit, similar to CPU logic
+        const startingInterest = Math.min(40, Math.round(fit * 0.4 + recruit.stars * 2));
         dispatch(addRecruitToBoard({ recruitId: recruit.id, startingInterest }));
     }
+  }
+
+  function onAdvance() {
+     // If in season, run full cycle
+     // For now, always try running cycle if possible, fallback to just recruiting if not in season
+     dispatch(runCareerWeeklyCycle());
+     // Note: if user is not in regular season (e.g. offseason), runCareerWeeklyCycle returns 'skipped'
+     // We might want a fallback `advanceRecruitingWeek()` here if we want offseason recruiting decoupled.
+     // For now, let's assume recruiting only happens during season.
   }
 
   function onHoursChange(recruitId: string, nextHours: number): void {
@@ -157,7 +177,7 @@ function CoachCareerPage() {
                         />
                         <button
                             className="btn btn-primary text-sm"
-                            onClick={() => dispatch(initializeRecruitingBoard({ seed: seedInput }))}
+                            onClick={() => dispatch(initializeRecruitingBoard({ seed: seedInput, teams }))}
                         >
                             Start Recruiting
                         </button>
@@ -165,7 +185,7 @@ function CoachCareerPage() {
                  ) : (
                     <button
                         className="btn btn-primary"
-                        onClick={() => dispatch(advanceRecruitingWeek())}
+                        onClick={onAdvance}
                         disabled={coach.boardRecruitIds.length === 0}
                     >
                         Advance Week {coach.recruitingWeekIndex + 1}
@@ -190,13 +210,14 @@ function CoachCareerPage() {
                 <thead>
                   <tr className="text-left text-gray-500 border-b">
                     <th className="pb-2">Recruit</th>
+                    <th className="pb-2">Competition</th>
                     <th className="pb-2">Pitch/Grade</th>
                     <th className="pb-2 w-24">Interest</th>
                     <th className="pb-2 text-right">Hours</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {boardRows.map(({ recruit, interest, change, activePitch, pitchGrade, dealbreakerWarning }) => (
+                  {boardRows.map(({ recruit, interest, activePitch, pitchGrade, dealbreakerWarning, topSuitors }) => (
                     <tr key={recruit.id} className="border-b last:border-0 hover:bg-gray-50">
                       <td className="py-2">
                         <div className="font-semibold flex items-center gap-1">
@@ -209,6 +230,16 @@ function CoachCareerPage() {
                                 {recruit.motivations?.map((m, i) => <MotivationIcon key={i} motivation={m} />)}
                              </div>
                         </div>
+                      </td>
+                      <td className="py-2">
+                          <div className="text-xs">
+                              {topSuitors.map((s, i) => (
+                                  <div key={i} className={`flex justify-between ${s.name === selectedTeam?.schoolName ? 'font-bold text-blue-700' : 'text-gray-600'}`}>
+                                      <span className="truncate max-w-[100px]" title={s.name}>{s.name}</span>
+                                      <span>{s.score}%</span>
+                                  </div>
+                              ))}
+                          </div>
                       </td>
                       <td className="py-2">
                         <select
@@ -229,15 +260,10 @@ function CoachCareerPage() {
                       </td>
                       <td className="py-2">
                         <div className="w-full bg-gray-200 rounded-full h-2 mb-1">
-                          <div className="bg-blue-600 h-2 rounded-full" style={{ width: `${interest}%` }} />
+                          <div className={`h-2 rounded-full ${interest >= 100 ? 'bg-green-500' : 'bg-blue-600'}`} style={{ width: `${Math.min(100, interest)}%` }} />
                         </div>
-                        <div className="text-xs flex justify-between">
-                            <span>{interest}%</span>
-                            {change !== 0 && (
-                                <span className={change > 0 ? 'text-green-600' : 'text-red-600'}>
-                                    {change > 0 ? '+' : ''}{change}
-                                </span>
-                            )}
+                        <div className="text-xs font-bold text-center">
+                            {interest}%
                         </div>
                       </td>
                       <td className="py-2 text-right">
