@@ -1,5 +1,5 @@
-import { Recruit, RecruitingPitch, TeamId } from '../types/sim';
-import { makeRng } from './rng';
+import type { Recruit, RecruitingPitch, TeamId } from '../types/sim.ts';
+import { makeRng } from './rng.ts';
 
 export interface RecruitingWeekResult {
   interestByRecruitId: Record<string, number>;
