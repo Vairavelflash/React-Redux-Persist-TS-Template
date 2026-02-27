@@ -2,7 +2,6 @@ import { useMemo, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import {
   addRecruitToBoard,
-  advanceRecruitingWeek,
   initializeRecruitingBoard,
   removeRecruitFromBoard,
   setRecruitHours,
@@ -183,13 +182,17 @@ function CoachCareerPage() {
                         </button>
                      </div>
                  ) : (
-                    <button
-                        className="btn btn-primary"
-                        onClick={onAdvance}
-                        disabled={coach.boardRecruitIds.length === 0}
-                    >
-                        Advance Week {coach.recruitingWeekIndex + 1}
-                    </button>
+                    <div className="flex flex-col items-end gap-1">
+                      <button
+                          className="btn btn-primary"
+                          onClick={onAdvance}
+                      >
+                          Advance Week {coach.recruitingWeekIndex + 1}
+                      </button>
+                      {coach.boardRecruitIds.length === 0 && (
+                        <div className="text-xs text-amber-700">No active targets: season will advance with CPU recruiting only.</div>
+                      )}
+                    </div>
                  )}
             </div>
         </div>
