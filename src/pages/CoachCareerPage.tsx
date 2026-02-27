@@ -99,7 +99,7 @@ function CoachCareerPage() {
           return { recruit, fit, hours, interest, activePitch, pitchGrade, dealbreakerWarning, topSuitors };
         })
         .sort((a, b) => b.interest - a.interest);
-  }, [boardRecruits, coach.weeklyHoursByRecruitId, coach.recruitPool, coach.activePitchesByRecruitId, selectedTeam, teams]);
+  }, [boardRecruits, coach.weeklyHoursByRecruitId, coach.activePitchesByRecruitId, selectedTeam, teams]);
 
   const committedToUserCount = coach.recruitPool.filter((recruit) => recruit.committedTeamId && recruit.committedTeamId === coach.selectedTeamId).length;
 

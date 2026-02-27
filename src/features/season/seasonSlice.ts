@@ -108,7 +108,8 @@ export const simSeason = createAsyncThunk(
   'season/simSeason',
   async (_, { dispatch, getState }) => {
     const state = getState() as RootState;
-    let { currentWeekIndex, scheduleByWeek } = state.season;
+    let { currentWeekIndex } = state.season;
+    const { scheduleByWeek } = state.season;
 
     while (currentWeekIndex < scheduleByWeek.length) {
       await dispatch(simCurrentWeek());

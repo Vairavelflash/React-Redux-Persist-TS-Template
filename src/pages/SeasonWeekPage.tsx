@@ -24,7 +24,7 @@ function SeasonWeekPage() {
 
   // Derived state for filtered games
   const displayedGames = useMemo(() => {
-      let games = rows.filter(({ game }) => {
+      const games = rows.filter(({ game }) => {
           if (conferenceFilter === 'ALL') return true;
           const home = teamById.get(game.homeTeamId);
           const away = teamById.get(game.awayTeamId);
