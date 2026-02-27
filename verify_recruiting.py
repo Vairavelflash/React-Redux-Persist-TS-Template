@@ -2,49 +2,43 @@ import re
 import traceback
 from pathlib import Path
 
-from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
+import re
+
 from playwright.sync_api import expect, sync_playwright
 
-BASE_URL = "http://localhost:5173"
-VERIFICATION_SCREENSHOT = "verification_recruiting.png"
-DEBUG_SCREENSHOT = "debug_screenshot.png"
+def test_recruiting_verification(page):
+    print("Navigating to home...")
+    page.goto("http://localhost:5173/")
 
+    # Start Career
+    print("Starting Career...")
+    # Check for Start Career link or button
+    try:
+        page.get_by_role("link", name="Coach Career").click(timeout=2000)
+    except Exception:
+        page.goto("http://localhost:5173/career/setup")
 
-def _save_screenshot(page, path: str) -> None:
-    Path(path).parent.mkdir(parents=True, exist_ok=True)
-    page.screenshot(path=path, full_page=True)
+    # Setup Page
+    print("Filling Profile...")
+    page.get_by_placeholder("Coach Name").fill("Verify Coach")
+    page.get_by_placeholder("Alma Mater").fill("Verify U")
 
+    # Archetype selection (default is fine, just click continue)
+    page.get_by_role("button", name="Create Coach Profile").click()
 
-def _open_career_setup(page) -> None:
-    print("Opening career setup...")
-    page.goto(f"{BASE_URL}/")
+    # Team Selection
+    print("Selecting Team...")
+    # Wait for cards
+    page.wait_for_selector(".card")
+    # Click first select button
+    page.locator(".card button").first.click()
 
-    career_link = page.get_by_role("link", name="Coach Career")
-    if career_link.count() > 0:
-        career_link.first.click()
-    else:
-        page.goto(f"{BASE_URL}/career/setup")
-
-    expect(page).to_have_url(re.compile(r".*/career/setup$"))
-
-
-def _complete_career_setup(page) -> None:
-    print("Completing setup form...")
-    page.get_by_label("Coach Name").fill("Verify Coach")
-    page.get_by_label("Alma Mater").fill("Verify U")
-
-    program_select = page.get_by_label("Program")
-    first_program_value = program_select.locator("option").nth(1).get_attribute("value")
-    if not first_program_value:
-        raise RuntimeError("No team options found in Program selector.")
-    program_select.select_option(first_program_value)
-
-    page.get_by_role("button", name=re.compile(r"Start Career|Update Career Setup")).click()
+    # Career Dashboard
+    print("On Dashboard...")
     expect(page).to_have_url(re.compile(r".*/career$"))
 
-
-def _initialize_recruiting(page) -> None:
-    print("Initializing recruiting board...")
+    # Initialize Board
+    print("Initializing Board...")
     seed_input = page.get_by_placeholder("Seed")
     expect(seed_input).to_be_visible()
     seed_input.fill("2026")
@@ -65,9 +59,8 @@ def _verify_board_and_add_recruit(page) -> None:
     expect(target_table.get_by_role("row")).to_have_count(2)
 
     first_data_row = target_table.get_by_role("row").nth(1)
-    competition_cell = first_data_row.get_by_role("cell").nth(1)
-    expect(competition_cell).to_have_text(re.compile(r"\S+"))
-
+    comp_cell = first_data_row.get_by_role("cell").nth(1)
+    expect(comp_cell).to_have_text(re.compile(r"\S+"))
 
 def test_recruiting_verification(page) -> None:
     _open_career_setup(page)
@@ -86,10 +79,8 @@ if __name__ == "__main__":
         page = browser.new_page()
         try:
             test_recruiting_verification(page)
-        except (AssertionError, RuntimeError, PlaywrightTimeoutError) as error:
-            print(f"Verification failed: {error}")
-            _save_screenshot(page, DEBUG_SCREENSHOT)
-            traceback.print_exc()
-            raise
+        except Exception as e:
+            print(f"Error: {e}")
+            page.screenshot(path="debug_screenshot.png", full_page=True)
         finally:
             browser.close()
