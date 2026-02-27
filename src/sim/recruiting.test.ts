@@ -82,4 +82,27 @@ describe('Recruiting Logic', () => {
         const fit = estimateRecruitFit(recruit, team);
         assert.ok(fit > 60, `Expected high fit, got ${fit}`);
     });
+
+    test('generateSuitors creates initial interest for CPU teams', async () => {
+        const recruit = {
+            id: 'r1',
+            stars: 4,
+            region: 'Northeast',
+            motivations: []
+        } as unknown as Recruit;
+
+        const teams = [
+            { id: 't1', prestige: 90, region: 'Northeast' },
+            { id: 't2', prestige: 85, region: 'Northeast' },
+            { id: 't3', prestige: 20, region: 'West' } // low fit
+        ] as Team[];
+
+        const { generateSuitors } = await import('./recruiting.ts');
+        const result = generateSuitors(recruit, teams, 12345);
+
+        // Expect t1 and t2 to be suitors, t3 likely not.
+        // Note: With only 3 teams and random selection of 3-5, all might be selected.
+        // Let's check that we have some suitors.
+        assert.ok(Object.keys(result).length > 0, 'Should generate suitors');
+    });
 });

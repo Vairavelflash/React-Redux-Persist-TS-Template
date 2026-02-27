@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
-import { Recruit, RecruitingPitch, Tactics } from '../../types/sim';
+import { Recruit, RecruitingPitch, Tactics, Team } from '../../types/sim';
 
-import { generateRecruitPool, getTeamPitchGrade } from '../../sim/recruiting';
+import { generateRecruitPool, generateSuitors, getTeamPitchGrade } from '../../sim/recruiting';
 import { simulateRecruitingWeek } from '../../sim/recruitingWeek';
 import { RootState } from '../../store/store';
 
@@ -33,8 +33,6 @@ export interface CoachState {
   recruitingWeekIndex: number;
   weeklyHoursByRecruitId: Record<string, number>;
   activePitchesByRecruitId: Record<string, RecruitingPitch>;
-  interestByRecruitId: Record<string, number>;
-  interestChangeByRecruitId: Record<string, number>;
 }
 
 const initialState: CoachState = {
@@ -54,8 +52,6 @@ const initialState: CoachState = {
   recruitingWeekIndex: 0,
   weeklyHoursByRecruitId: {},
   activePitchesByRecruitId: {},
-  interestByRecruitId: {},
-  interestChangeByRecruitId: {},
 };
 
 const coachSlice = createSlice({
@@ -83,32 +79,39 @@ const coachSlice = createSlice({
         state.programExpectations = action.payload.programExpectations;
         state.onboardingStep = 'READY'; // Changed to READY as per component check
     },
-    initializeRecruitingBoard: (state, action: PayloadAction<{ seed: number }>) => {
+    initializeRecruitingBoard: (state, action: PayloadAction<{ seed: number; teams: Team[] }>) => {
         state.recruitingSeed = action.payload.seed;
-        state.recruitPool = generateRecruitPool(action.payload.seed);
+        const pool = generateRecruitPool(action.payload.seed);
+
+        // Initialize suitors for each recruit
+        pool.forEach(recruit => {
+            recruit.interestByTeamId = generateSuitors(recruit, action.payload.teams, action.payload.seed);
+        });
+
+        state.recruitPool = pool;
         state.boardRecruitIds = [];
         state.weeklyHoursByRecruitId = {};
         state.activePitchesByRecruitId = {};
-        state.interestByRecruitId = {};
-        state.interestChangeByRecruitId = {};
         state.recruitingWeekIndex = 0;
     },
     addRecruitToBoard: (state, action: PayloadAction<{ recruitId: string; startingInterest: number }>) => {
         if (!state.boardRecruitIds.includes(action.payload.recruitId) && state.boardRecruitIds.length < 25) {
             state.boardRecruitIds.push(action.payload.recruitId);
             state.weeklyHoursByRecruitId[action.payload.recruitId] = 0;
-            state.interestByRecruitId[action.payload.recruitId] = action.payload.startingInterest;
-            state.interestChangeByRecruitId[action.payload.recruitId] = 0;
+
+            // Set starting interest if not already tracked
+            const recruit = state.recruitPool.find(r => r.id === action.payload.recruitId);
+            if (recruit && state.selectedTeamId) {
+                 if ((recruit.interestByTeamId[state.selectedTeamId] || 0) < action.payload.startingInterest) {
+                     recruit.interestByTeamId[state.selectedTeamId] = action.payload.startingInterest;
+                 }
+            }
         }
     },
     removeRecruitFromBoard: (state, action: PayloadAction<string>) => {
         state.boardRecruitIds = state.boardRecruitIds.filter(id => id !== action.payload);
         delete state.weeklyHoursByRecruitId[action.payload];
         delete state.activePitchesByRecruitId[action.payload];
-        delete state.interestChangeByRecruitId[action.payload];
-        // Keep interest in case they are re-added? Or clear it.
-        // Clearing it makes sense to "reset" progress if dropped, though maybe harsh.
-        delete state.interestByRecruitId[action.payload];
     },
     setRecruitHours: (state, action: PayloadAction<{ recruitId: string; hours: number }>) => {
         const { recruitId, hours } = action.payload;
@@ -134,16 +137,17 @@ const coachSlice = createSlice({
         state.activePitchesByRecruitId[action.payload.recruitId] = action.payload.pitch;
     },
     applyRecruitingUpdates: (state, action: PayloadAction<{
-        interestUpdates: Record<string, number>;
+        interestUpdates: Record<string, Record<string, number>>; // recruitId -> teamId -> interest
         commitments: { recruitId: string; teamId: string }[];
     }>) => {
         state.recruitingWeekIndex += 1;
 
         // Apply interest updates
-        Object.entries(action.payload.interestUpdates).forEach(([recruitId, interest]) => {
-            const current = state.interestByRecruitId[recruitId] || 0;
-            state.interestChangeByRecruitId[recruitId] = interest - current;
-            state.interestByRecruitId[recruitId] = interest;
+        Object.entries(action.payload.interestUpdates).forEach(([recruitId, interestMap]) => {
+            const recruit = state.recruitPool.find(r => r.id === recruitId);
+            if (recruit) {
+                recruit.interestByTeamId = interestMap;
+            }
         });
 
         // Apply commitments
@@ -211,7 +215,6 @@ export const advanceRecruitingWeek = createAsyncThunk(
             coach.activePitchesByRecruitId,
             pitchGradesByRecruitId,
             dealbreakerViolationsByRecruitId,
-            coach.interestByRecruitId,
             coach.selectedTeamId,
             coach.recruitingSeed,
             coach.recruitingWeekIndex
@@ -222,17 +225,6 @@ export const advanceRecruitingWeek = createAsyncThunk(
         Object.entries(result.committedTeamByRecruitId).forEach(([recruitId, teamId]) => {
             if (teamId) {
                 commitments.push({ recruitId, teamId });
-            }
-        });
-
-        // Sim CPU commitments (simple random fallback for now if not covered by simRecruitingWeek)
-        // Actually simRecruitingWeek doesn't handle CPU "steals" yet, just user logic + decay.
-        // Let's keep the random CPU commit logic for off-board recruits for now.
-         coach.recruitPool.forEach(recruit => {
-            if (!recruit.committedTeamId && !commitments.find(c => c.recruitId === recruit.id) && !coach.boardRecruitIds.includes(recruit.id)) {
-                 if (Math.random() < 0.02) {
-                     commitments.push({ recruitId: recruit.id, teamId: 'CPU' });
-                 }
             }
         });
 
