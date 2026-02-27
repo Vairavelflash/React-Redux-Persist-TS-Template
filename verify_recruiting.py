@@ -1,5 +1,7 @@
 
-from playwright.sync_api import sync_playwright, expect
+import re
+
+from playwright.sync_api import expect, sync_playwright
 
 def test_recruiting_verification(page):
     print("Navigating to home...")
@@ -10,7 +12,7 @@ def test_recruiting_verification(page):
     # Check for Start Career link or button
     try:
         page.get_by_role("link", name="Coach Career").click(timeout=2000)
-    except:
+    except Exception:
         page.goto("http://localhost:5173/career/setup")
 
     # Setup Page
@@ -30,7 +32,7 @@ def test_recruiting_verification(page):
 
     # Career Dashboard
     print("On Dashboard...")
-    expect(page).to_have_url(lambda u: "/career" in u)
+    expect(page).to_have_url(re.compile(r".*/career$"))
 
     # Initialize Board
     print("Initializing Board...")
@@ -58,7 +60,7 @@ def test_recruiting_verification(page):
     print("Verifying Competition Data...")
     first_data_row = target_table.get_by_role("row").nth(1)
     comp_cell = first_data_row.get_by_role("cell").nth(1)
-    expect(comp_cell).not_to_be_empty()
+    expect(comp_cell).to_have_text(re.compile(r"\S+"))
 
     # Screenshot
     print("Taking Screenshot...")
@@ -73,6 +75,6 @@ if __name__ == "__main__":
             test_recruiting_verification(page)
         except Exception as e:
             print(f"Error: {e}")
-            page.screenshot(path="error.png")
+            page.screenshot(path="debug_screenshot.png", full_page=True)
         finally:
             browser.close()
