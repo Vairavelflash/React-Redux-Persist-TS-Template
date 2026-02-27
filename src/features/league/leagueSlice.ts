@@ -52,3 +52,26 @@ export const selectTeamWithRosterSummary = createSelector(
     };
   },
 );
+
+export const selectConferenceBrowserRows = createSelector([selectConferences, selectTeams], (conferences, teams) =>
+  conferences.map((conference) => {
+    const conferenceTeams = teams.filter((team) => team.conferenceId === conference.id);
+    const conferenceRosterStrength = Math.round(
+      conferenceTeams.reduce((sum, team) => {
+        const roster = generateRoster(team, 'league-roster-v1');
+        const rosterOverall = roster.reduce((rosterSum, player) => rosterSum + player.overall, 0) / roster.length;
+        return sum + rosterOverall;
+      }, 0) / conferenceTeams.length,
+    );
+
+    return {
+      conference,
+      teams: conferenceTeams,
+      teamCount: conferenceTeams.length,
+      averagePrestige: Number(
+        (conferenceTeams.reduce((sum, team) => sum + team.prestige, 0) / conferenceTeams.length).toFixed(1),
+      ),
+      rosterStrength: conferenceRosterStrength,
+    };
+  }),
+);

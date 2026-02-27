@@ -1,7 +1,7 @@
 import { describe, test } from 'node:test';
 import assert from 'node:assert';
 import { generateRecruitPool, calculateTeamGrade, getTeamPitchGrade, estimateRecruitFit } from './recruiting.ts';
-import type { Team, Recruit, RecruitingPitch, RecruitMotivation } from '../types/sim.ts';
+import type { Team, Recruit } from '../types/sim.ts';
 
 describe('Recruiting Logic', () => {
     test('generateRecruitPool creates recruits with motivations', () => {
