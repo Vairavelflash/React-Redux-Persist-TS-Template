@@ -1,5 +1,5 @@
-import { Conference, ScheduledGame, Team } from '../types/sim';
-import { makeRng, randInt } from './rng';
+import type { Conference, ScheduledGame, Team } from '../types/sim.ts';
+import { makeRng, randInt } from './rng.ts';
 
 const TOTAL_WEEKS = 12;
 
