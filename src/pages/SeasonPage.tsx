@@ -35,7 +35,10 @@ function SeasonPage() {
     });
   }, [thisWeekGames, conferenceFilter, teamById]);
 
+  const hasValidSeed = Number.isFinite(seedInput);
+
   const handleStartSeason = () => {
+      if (!hasValidSeed) return;
       dispatch(startNewSeason({ seed: seedInput }));
   };
 
@@ -67,7 +70,14 @@ function SeasonPage() {
                       <input
                         type="number"
                         value={seedInput}
-                        onChange={(e) => setSeedInput(Number(e.target.value))}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          if (value.trim() === '') {
+                            setSeedInput(Number.NaN);
+                            return;
+                          }
+                          setSeedInput(Number(value));
+                        }}
                         className="p-2 border rounded w-full"
                       />
                   </label>
@@ -79,10 +89,15 @@ function SeasonPage() {
                   </button>
               </div>
 
+              {!hasValidSeed && (
+                <p className="text-sm text-red-600 mt-1">Enter a valid numeric seed to begin.</p>
+              )}
+
               <div className="flex justify-end">
                   <button
                       className="btn btn-primary"
                       onClick={handleStartSeason}
+                      disabled={!hasValidSeed}
                   >
                       Begin Season
                   </button>
@@ -126,7 +141,7 @@ function SeasonPage() {
         </div>
 
         <div className="flex gap-2 text-sm mt-4 border-t pt-2">
-             <Link to="/conferences" className="text-blue-600 hover:underline">View Standings</Link>
+             <Link to="/season/standings" className="text-blue-600 hover:underline">View Standings</Link>
              <span>&bull;</span>
              <Link to={`/season/week/${displayWeek}`} className="text-blue-600 hover:underline">Full Weekly Schedule</Link>
              <span>&bull;</span>
