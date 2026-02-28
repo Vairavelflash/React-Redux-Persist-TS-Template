@@ -1,5 +1,14 @@
 export type RngFn = () => number;
 
+export function seedToNumber(seed: string): number {
+  let hash = 2166136261;
+  for (let i = 0; i < seed.length; i += 1) {
+    hash ^= seed.charCodeAt(i);
+    hash = Math.imul(hash, 16777619);
+  }
+  return hash >>> 0;
+}
+
 /**
  * mulberry32 seeded PRNG. Deterministic for the same numeric seed.
  */

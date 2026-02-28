@@ -1,5 +1,5 @@
 import { Player, Position, Team } from '../types/sim';
-import { makeRng, pickOne, randInt } from './rng';
+import { makeRng, pickOne, randInt, seedToNumber } from './rng';
 import namesData from '../data/names.json' with { type: 'json' };
 
 const POSITION_DISTRIBUTION: Position[] = [
@@ -14,15 +14,6 @@ const POSITION_DISTRIBUTION: Position[] = [
 ];
 
 const clamp = (value: number) => Math.max(40, Math.min(99, value));
-
-function seedToNumber(seed: string): number {
-  let hash = 2166136261;
-  for (let i = 0; i < seed.length; i += 1) {
-    hash ^= seed.charCodeAt(i);
-    hash = Math.imul(hash, 16777619);
-  }
-  return hash >>> 0;
-}
 
 export function generateRoster(team: Team, seed: string): Player[] {
   const rng = makeRng(seedToNumber(`${seed}:${team.id}`));
