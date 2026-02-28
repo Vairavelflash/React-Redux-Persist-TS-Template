@@ -18,9 +18,9 @@ Build a deterministic, web-based college lacrosse coaching sim with NCAA-ish rea
 - [x] Redux persistence configured for season + coach slices only.
 
 ### Partially Implemented
-- [ ] Season progression phase transitions beyond regular season are scaffolded but not fully playable.
+- [ ] Season progression and postseason flow are playable, but balancing and presentation still need polish.
 - [ ] Week/game detail depth is compact; no rich drill-down UX yet.
-- [ ] Rankings page is a placeholder.
+- [ ] Coach career systems are scaffolded but need deeper gameplay impact.
 
 ### Not Started
 - [ ] Top 25 ranking engine and Top 12 playoff projection.
@@ -31,7 +31,28 @@ Build a deterministic, web-based college lacrosse coaching sim with NCAA-ish rea
 
 ---
 
-## C) Milestones
+## C) Alpha Stage Focus (Current)
+
+### Alpha Definition (this repo)
+An **alpha-ready** build means users can run a full deterministic year loop (regular season + playoff bracket), inspect outcomes clearly, and continue a coach save with stable persistence and acceptable UX.
+
+### Alpha Progress Snapshot
+- **Complete**: League foundation, team browsing, deterministic roster summaries, deterministic exhibition sim.
+- **Complete**: 12-week schedule, week-by-week simulation, standings, and season persistence.
+- **In progress**: Ranking and playoff logic tuning + transparency.
+- **In progress**: Coach-career depth and progression loop quality.
+- **Next up**: UX/accessibility polish, responsive tables, and stronger regression testing.
+
+### Alpha Exit Checklist
+- [ ] Rankings criteria are documented and explainable in UI.
+- [ ] Playoff flow is fully deterministic and validated end-to-end.
+- [ ] Week/game detail pages provide enough depth to understand results.
+- [ ] Core loops pass regression tests (schedule, sim, rankings, playoffs).
+- [ ] UI is usable on common desktop + tablet viewports.
+
+---
+
+## D) Milestones
 
 ## M1 — League Data + Browsing UI
 - [x] Add 128 teams and 16 conferences.
@@ -95,9 +116,9 @@ Build a deterministic, web-based college lacrosse coaching sim with NCAA-ish rea
 - Better schedule balancing heuristics.
 
 ## M4 — Rankings (Top 25 + Top 12 Projection)
-- [ ] Compute weekly Top 25 rankings.
-- [ ] Compute Top 12 playoff projection.
-- [ ] Replace rankings placeholder page.
+- [x] Compute weekly Top 25 rankings.
+- [x] Compute Top 12 playoff projection.
+- [x] Replace rankings placeholder page.
 
 **Key files/modules**
 - `src/sim/rankings.ts` (planned)
@@ -113,10 +134,10 @@ Build a deterministic, web-based college lacrosse coaching sim with NCAA-ish rea
 - “Next four out” bubble list.
 
 ## M5 — 12-Team Playoff Bracket
-- [ ] Selection Sunday flow.
-- [ ] Seed 1–4 byes.
-- [ ] Round 1 pairings: 5v12, 6v11, 7v10, 8v9.
-- [ ] Fixed bracket advancement until champion.
+- [x] Selection Sunday-style seeding flow.
+- [x] Seed 1–4 byes.
+- [x] Round 1 pairings: 5v12, 6v11, 7v10, 8v9.
+- [x] Fixed bracket advancement until champion.
 
 **Key files/modules**
 - `src/sim/rankings.ts` / `src/sim/playoffs.ts` (planned)
@@ -206,7 +227,7 @@ Build a deterministic, web-based college lacrosse coaching sim with NCAA-ish rea
 
 ---
 
-## D) Data Contracts
+## E) Data Contracts
 
 ### `teams128.json` schema (current)
 ```json
