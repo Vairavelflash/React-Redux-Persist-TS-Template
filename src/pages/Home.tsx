@@ -57,12 +57,12 @@ function Home() {
                     <div style={{ fontSize: '0.8rem', color: '#666' }}>Manage recruiting & status</div>
                 </Link>
                 <Link to="/conferences" className="link-card">
-                    <strong>League Standings</strong>
-                    <div style={{ fontSize: '0.8rem', color: '#666' }}>View conference tables</div>
+                    <strong>Conferences</strong>
+                    <div style={{ fontSize: '0.8rem', color: '#666' }}>Browse all teams by conference</div>
                 </Link>
-                <Link to="/schedule" className="link-card">
-                    <strong>Full Schedule</strong>
-                    <div style={{ fontSize: '0.8rem', color: '#666' }}>All games for the season</div>
+                <Link to="/season/standings" className="link-card">
+                    <strong>League Standings</strong>
+                    <div style={{ fontSize: '0.8rem', color: '#666' }}>Conference and overall records</div>
                 </Link>
             </div>
         </section>

@@ -28,6 +28,25 @@
   gap: 0.5rem;
 }
 
+
+
+.leftNav .navLink {
+  color: #1f2937;
+  text-decoration: none;
+  border-radius: 6px;
+  padding: 0.35rem 0.5rem;
+}
+
+.leftNav .navLink:hover {
+  background-color: #f3f4f6;
+}
+
+.leftNav .navLink-active {
+  background-color: #e0e7ff;
+  color: #1d4ed8;
+  font-weight: 600;
+}
+
 .conferenceCard,
 .card {
   border: 1px solid #ddd;

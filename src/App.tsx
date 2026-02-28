@@ -1,4 +1,4 @@
-import { RouterProvider, createBrowserRouter } from 'react-router-dom';
+import { Navigate, RouterProvider, createBrowserRouter } from 'react-router-dom';
 import Layout from './pages/Layout';
 import Home from './pages/Home';
 import ConferencesPage from './pages/ConferencesPage';
@@ -27,6 +27,7 @@ function App() {
         { path: 'career', element: <CoachCareerPage /> },
         { path: 'career/setup', element: <CoachCareerSetupPage /> },
         { path: 'season', element: <SeasonPage /> },
+        { path: 'schedule', element: <Navigate to="/season" replace /> },
         { path: 'season/standings', element: <SeasonStandingsPage /> },
         { path: 'season/week/:weekIndex', element: <SeasonWeekPage /> },
         { path: 'playoffs', element: <PlayoffsPage /> },
