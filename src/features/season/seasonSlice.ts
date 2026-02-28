@@ -6,7 +6,7 @@ import { simulateGame } from '../../sim/matchEngine';
 import { generateRoster } from '../../sim/generateRoster';
 import { selectTeams } from '../league/leagueSlice';
 import { buildPlayoffState, selectPlayoffField, simulatePlayoffRound } from '../../sim/playoffs';
-import { computeRankings } from '../../sim/rankings';
+import { computePlayoffProjection, computeRankings } from '../../sim/rankings';
 
 const initialState: SeasonState = {
   year: 2026,
@@ -289,6 +289,14 @@ export const selectOverallStandings = createSelector(
 
         return rows.sort((a, b) => b.record.wins - a.record.wins);
     }
+);
+
+export const selectTop25Rankings = createSelector([selectTeams, selectTeamRecords], (teams, records) =>
+  computeRankings(teams, records, 25),
+);
+
+export const selectTop12Projection = createSelector([selectTeams, selectTeamRecords], (teams, records) =>
+  computePlayoffProjection(teams, records),
 );
 
 export const selectPlayoffState = (state: RootState) => state.season.playoffs;
