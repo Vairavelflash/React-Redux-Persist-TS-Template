@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { describe, test } from 'node:test';
 import assert from 'node:assert';
 import { validateSchedule } from './schedule.ts';
@@ -7,7 +6,14 @@ import type { Team, ScheduledGame } from '../types/sim.ts';
 function createValidData(): { teams: Team[], schedule: ScheduledGame[][] } {
     const teams: Team[] = [];
     for (let i = 0; i < 128; i++) {
-        teams.push({ id: `t${i}`, schoolName: `Team ${i}` } as Team);
+        teams.push({
+            id: `t${i}`,
+            schoolName: `Team ${i}`,
+            nickname: `Nickname ${i}`,
+            conferenceId: `c${Math.floor(i / 8)}`,
+            region: 'National',
+            prestige: 50
+        });
     }
 
     const teamIds = teams.map(t => t.id);
