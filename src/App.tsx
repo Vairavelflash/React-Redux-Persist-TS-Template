@@ -11,6 +11,7 @@ import SeasonPage from './pages/SeasonPage';
 import SeasonStandingsPage from './pages/SeasonStandingsPage';
 import SeasonWeekPage from './pages/SeasonWeekPage';
 import PlayoffsPage from './pages/PlayoffsPage';
+import AlphaStagePage from './pages/AlphaStagePage';
 import './App.css';
 
 function App() {
@@ -31,6 +32,7 @@ function App() {
         { path: 'season/standings', element: <SeasonStandingsPage /> },
         { path: 'season/week/:weekIndex', element: <SeasonWeekPage /> },
         { path: 'playoffs', element: <PlayoffsPage /> },
+        { path: 'alpha', element: <AlphaStagePage /> },
       ],
     },
   ]);

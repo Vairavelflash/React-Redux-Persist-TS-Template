@@ -64,6 +64,10 @@ function Home() {
                     <strong>League Standings</strong>
                     <div style={{ fontSize: '0.8rem', color: '#666' }}>Conference and overall records</div>
                 </Link>
+                <Link to="/alpha" className="link-card">
+                    <strong>Alpha Progress</strong>
+                    <div style={{ fontSize: '0.8rem', color: '#666' }}>Feature checklist + next priorities</div>
+                </Link>
             </div>
         </section>
     </div>

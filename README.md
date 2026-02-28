@@ -23,3 +23,7 @@ npm run build
 - `npm run build` — Type-check + production build
 - `npm run lint` — Lint TypeScript/TSX files
 - `npm run preview` — Preview production build locally
+
+## Alpha planning
+
+Track alpha-stage readiness in the in-app **Alpha Progress** page (`/alpha`) and in the roadmap's alpha checklist section.

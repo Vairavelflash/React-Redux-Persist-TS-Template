@@ -32,6 +32,9 @@ function LeftNavBar() {
       <NavLink to="/exhibition" className={navClassName}>
         Exhibition
       </NavLink>
+      <NavLink to="/alpha" className={navClassName}>
+        Alpha Progress
+      </NavLink>
     </nav>
   );
 }
