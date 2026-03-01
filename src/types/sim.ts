@@ -127,6 +127,15 @@ export interface RankingRow {
   record: string;
 }
 
+export interface RankingScoreBreakdown {
+  overallWinPctPoints: number;
+  conferenceWinPctPoints: number;
+  pointDifferentialPoints: number;
+  prestigePoints: number;
+  scoringVolumePoints: number;
+  totalPoints: number;
+}
+
 export interface TeamRecord {
   wins: number;
   losses: number;
