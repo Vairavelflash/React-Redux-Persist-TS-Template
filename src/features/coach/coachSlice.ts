@@ -1,8 +1,9 @@
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
-import { Recruit, RecruitingPitch, Tactics, Team } from '../../types/sim';
+import { Recruit, RecruitingPitch, SignedRecruit, Tactics, Team } from '../../types/sim';
 
 import { generateRecruitPool, generateSuitors, getTeamPitchGrade } from '../../sim/recruiting';
 import { simulateRecruitingWeek } from '../../sim/recruitingWeek';
+import { resolveSigningDay } from '../../sim/offseason';
 import { RootState } from '../../store/store';
 
 export const WEEKLY_HOURS_CAP = 120;
@@ -35,6 +36,8 @@ export interface CoachState {
   recruitingWeekIndex: number;
   weeklyHoursByRecruitId: Record<string, number>;
   activePitchesByRecruitId: Record<string, RecruitingPitch>;
+  scholarshipsAvailable: number;
+  signedRecruitsByYear: Record<number, SignedRecruit[]>;
 }
 
 const initialState: CoachState = {
@@ -54,6 +57,8 @@ const initialState: CoachState = {
   recruitingWeekIndex: 0,
   weeklyHoursByRecruitId: {},
   activePitchesByRecruitId: {},
+  scholarshipsAvailable: 12,
+  signedRecruitsByYear: {},
 };
 
 const coachSlice = createSlice({
@@ -95,6 +100,7 @@ const coachSlice = createSlice({
         state.weeklyHoursByRecruitId = {};
         state.activePitchesByRecruitId = {};
         state.recruitingWeekIndex = 0;
+        state.scholarshipsAvailable = 12;
     },
     addRecruitToBoard: (state, action: PayloadAction<{ recruitId: string; startingInterest: number }>) => {
         if (!state.boardRecruitIds.includes(action.payload.recruitId) && state.boardRecruitIds.length < 25) {
@@ -159,6 +165,11 @@ const coachSlice = createSlice({
                 recruit.committedTeamId = teamId;
             }
         });
+    },
+    finalizeSigningClass: (state, action: PayloadAction<{ seasonYear: number; signedRecruits: SignedRecruit[] }>) => {
+        const { seasonYear, signedRecruits } = action.payload;
+        state.signedRecruitsByYear[seasonYear] = signedRecruits;
+        state.scholarshipsAvailable = Math.max(0, state.scholarshipsAvailable - signedRecruits.length);
     }
   },
 });
@@ -173,7 +184,8 @@ export const {
     removeRecruitFromBoard,
     setRecruitHours,
     setRecruitPitch,
-    applyRecruitingUpdates
+    applyRecruitingUpdates,
+    finalizeSigningClass,
 } = coachSlice.actions;
 
 
@@ -233,6 +245,43 @@ export const advanceRecruitingWeek = createAsyncThunk(
         dispatch(applyRecruitingUpdates({
             interestUpdates: result.interestByRecruitId,
             commitments
+        }));
+    }
+);
+
+export const processSigningDay = createAsyncThunk(
+    'coach/processSigningDay',
+    async (_, { getState, dispatch }) => {
+        const state = getState() as RootState;
+        const coach = state.coach;
+
+        if (!coach.selectedTeamId || state.season.phase !== 'OFFSEASON') {
+            return;
+        }
+
+        const alreadySigned = coach.signedRecruitsByYear[state.season.year] ?? [];
+        if (alreadySigned.length > 0) {
+            return;
+        }
+
+        const committedToUser = coach.recruitPool.filter(
+            (recruit) => recruit.committedTeamId === coach.selectedTeamId,
+        );
+
+        const signingOutcome = resolveSigningDay(committedToUser, coach.scholarshipsAvailable);
+        const signedRecruits = signingOutcome.signedRecruitIds
+            .map((recruitId) => coach.recruitPool.find((recruit) => recruit.id === recruitId))
+            .filter((recruit): recruit is Recruit => Boolean(recruit))
+            .map((recruit) => ({
+                recruitId: recruit.id,
+                signedAtYear: state.season.year,
+                stars: recruit.stars,
+                position: recruit.position,
+            }));
+
+        dispatch(finalizeSigningClass({
+            seasonYear: state.season.year,
+            signedRecruits,
         }));
     }
 );
