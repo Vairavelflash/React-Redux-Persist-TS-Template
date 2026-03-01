@@ -51,6 +51,8 @@ function TeamPage() {
             <th>Name</th>
             <th>Pos</th>
             <th>Year</th>
+            <th>Age</th>
+            <th>Skill</th>
             <th>Overall</th>
           </tr>
         </thead>
@@ -60,6 +62,8 @@ function TeamPage() {
               <td>{player.name}</td>
               <td>{player.position}</td>
               <td>{player.year}</td>
+              <td>{player.age}</td>
+              <td>{player.skill}</td>
               <td>{player.overall}</td>
             </tr>
           ))}

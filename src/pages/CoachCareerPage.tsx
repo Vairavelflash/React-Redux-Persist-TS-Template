@@ -144,7 +144,7 @@ function CoachCareerPage() {
             <div>
                 <h2 className="m-0 text-xl">{selectedTeam?.schoolName} Recruiting</h2>
                 <div className="text-gray-500 text-sm mt-1">
-                    Coach {coach.profile.name} &bull; Tier {coach.careerTier}
+                    Coach {coach.profile.name} &bull; Age {coach.profile.age ?? 38} &bull; Skill {coach.profile.skill ?? 72} &bull; Tier {coach.careerTier}
                 </div>
             </div>
             <div className="text-right">

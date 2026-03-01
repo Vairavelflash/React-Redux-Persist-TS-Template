@@ -12,6 +12,8 @@ export interface CoachProfile {
   name: string;
   almaMater: string;
   archetype: 'RECRUITER' | 'TACTICIAN' | 'DEVELOPER';
+  age: number;
+  skill: number;
 }
 
 export interface ProgramExpectations {

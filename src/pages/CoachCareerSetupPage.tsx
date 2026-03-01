@@ -31,6 +31,8 @@ function CoachCareerSetupPage() {
   const [coachName, setCoachName] = useState(coach.profile?.name ?? '');
   const [almaMater, setAlmaMater] = useState(coach.profile?.almaMater ?? '');
   const [archetype, setArchetype] = useState(coach.profile?.archetype ?? 'RECRUITER');
+  const [coachAge, setCoachAge] = useState(coach.profile?.age ?? 38);
+  const [coachSkill, setCoachSkill] = useState(coach.profile?.skill ?? 72);
   const [teamId, setTeamId] = useState(coach.selectedTeamId ?? '');
 
   const conferenceById = useMemo(() => new Map(conferences.map((conference) => [conference.id, conference.name])), [conferences]);
@@ -67,6 +69,8 @@ function CoachCareerSetupPage() {
         name: coachName.trim(),
         almaMater: almaMater.trim(),
         archetype,
+        age: Math.max(24, Math.min(75, Math.round(coachAge))),
+        skill: Math.max(40, Math.min(99, Math.round(coachSkill))),
       }),
     );
 
@@ -86,7 +90,14 @@ function CoachCareerSetupPage() {
 
   const team = teams.find((entry) => entry.id === teamId) ?? null;
   const teamExpectations = team ? buildProgramExpectations(team.prestige) : null;
-  const canContinue = coachName.trim().length > 1 && almaMater.trim().length > 1 && Boolean(teamId);
+  const canContinue =
+    coachName.trim().length > 1 &&
+    almaMater.trim().length > 1 &&
+    coachAge >= 24 &&
+    coachAge <= 75 &&
+    coachSkill >= 40 &&
+    coachSkill <= 99 &&
+    Boolean(teamId);
 
   return (
     <section>
@@ -117,6 +128,30 @@ function CoachCareerSetupPage() {
           </select>
         </label>
         <p className="mutedText">{archetypeOptions.find((option) => option.value === archetype)?.summary}</p>
+
+        <div className="grid2">
+          <label>
+            Coach Age
+            <input
+              type="number"
+              min={24}
+              max={75}
+              value={coachAge}
+              onChange={(event) => setCoachAge(Number(event.target.value))}
+            />
+          </label>
+
+          <label>
+            Coach Skill (40-99)
+            <input
+              type="number"
+              min={40}
+              max={99}
+              value={coachSkill}
+              onChange={(event) => setCoachSkill(Number(event.target.value))}
+            />
+          </label>
+        </div>
 
         <label>
           Program
