@@ -8,9 +8,11 @@ import {
   setRecruitPitch,
   WEEKLY_HOURS_CAP,
   MAX_HOURS_PER_RECRUIT,
+  processSigningDay,
 } from '../features/coach/coachSlice';
 import { runCareerWeeklyCycle } from '../features/coach/careerThunks';
 import { selectTeamRecords } from '../features/season/seasonSlice';
+import { summarizeSigningClass } from '../sim/offseason';
 import { estimateRecruitFit, getTeamPitchGrade } from '../sim/recruiting';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { RecruitingPitch, RecruitMotivation } from '../types/sim';
@@ -42,6 +44,7 @@ function CoachCareerPage() {
   const dispatch = useAppDispatch();
   const teams = useAppSelector((state) => state.league.teams);
   const coach = useAppSelector((state) => state.coach);
+  const season = useAppSelector((state) => state.season);
   const recordsByTeamId = useAppSelector(selectTeamRecords);
 
   const [search, setSearch] = useState('');
@@ -102,6 +105,11 @@ function CoachCareerPage() {
   }, [boardRecruits, coach.weeklyHoursByRecruitId, coach.activePitchesByRecruitId, selectedTeam, teams]);
 
   const committedToUserCount = coach.recruitPool.filter((recruit) => recruit.committedTeamId && recruit.committedTeamId === coach.selectedTeamId).length;
+  const signedClassThisYear = coach.signedRecruitsByYear[season.year] ?? [];
+  const signedClassRecruits = signedClassThisYear
+    .map((signed) => coach.recruitPool.find((recruit) => recruit.id === signed.recruitId))
+    .filter((recruit): recruit is NonNullable<typeof recruit> => Boolean(recruit));
+  const signedClassSummary = summarizeSigningClass(signedClassRecruits);
 
   const userRecord = coach.selectedTeamId
     ? recordsByTeamId[coach.selectedTeamId] ?? { wins: 0, losses: 0, confWins: 0, confLosses: 0, pointsFor: 0, pointsAgainst: 0 }
@@ -159,6 +167,11 @@ function CoachCareerPage() {
                  <div className="font-bold">{committedToUserCount} / 12 Committed</div>
             </div>
              <div className="flex-1">
+                 <div className="text-xs text-gray-500 uppercase">Signing Class</div>
+                 <div className="font-bold">{signedClassThisYear.length} signed ({signedClassSummary.averageStars.toFixed(2)}★ avg)</div>
+                 <div className="text-xs text-gray-500">Blue-chip: {signedClassSummary.blueChipCount}</div>
+            </div>
+             <div className="flex-1">
                  <div className="text-xs text-gray-500 uppercase">Hours Available</div>
                  <div className={`font-bold ${hoursRemaining < 0 ? 'text-red-600' : 'text-green-600'}`}>
                     {hoursRemaining} / {WEEKLY_HOURS_CAP}
@@ -183,13 +196,23 @@ function CoachCareerPage() {
                      </div>
                  ) : (
                     <div className="flex flex-col items-end gap-1">
-                      <button
+                      {season.phase === 'OFFSEASON' ? (
+                        <button
                           className="btn btn-primary"
-                          onClick={onAdvance}
-                      >
-                          Advance Week {coach.recruitingWeekIndex + 1}
-                      </button>
-                      {coach.boardRecruitIds.length === 0 && (
+                          onClick={() => dispatch(processSigningDay())}
+                          disabled={signedClassThisYear.length > 0}
+                        >
+                          {signedClassThisYear.length > 0 ? 'Signing Day Complete' : 'Resolve Signing Day'}
+                        </button>
+                      ) : (
+                        <button
+                            className="btn btn-primary"
+                            onClick={onAdvance}
+                        >
+                            Advance Week {coach.recruitingWeekIndex + 1}
+                        </button>
+                      )}
+                      {coach.boardRecruitIds.length === 0 && season.phase !== 'OFFSEASON' && (
                         <div className="text-xs text-amber-700">No active targets: season will advance with CPU recruiting only.</div>
                       )}
                     </div>

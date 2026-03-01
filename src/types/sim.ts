@@ -55,6 +55,13 @@ export interface Recruit {
   interestByTeamId: Record<string, number>;
 }
 
+export interface SignedRecruit {
+  recruitId: string;
+  signedAtYear: number;
+  stars: number;
+  position: Position;
+}
+
 export type RecruitingPitch = 'PLAYING_TIME' | 'PROXIMITY' | 'ACADEMIC' | 'PRESTIGE' | 'CHAMPIONSHIP' | 'CAMPUS_LIFE';
 
 export interface RecruitMotivation {
