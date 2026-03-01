@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Outlet } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Outlet, useLocation } from 'react-router-dom';
 import Footer from './Layout/Footer';
 import Header from './Layout/Header';
 import LeftNavBar from './Layout/LeftNavBar';
@@ -10,9 +10,14 @@ import './style.css';
 function Layout() {
   const { isValid, error } = useSeasonSanityCheck();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const location = useLocation();
+
+  useEffect(() => {
+    setIsMenuOpen(false);
+  }, [location.pathname]);
 
   return (
-    <main className="layout">
+    <main className={`layout ${isMenuOpen ? 'layout-menuOpen' : ''}`}>
       <Header />
       {!isValid && (
         <div
@@ -36,8 +41,9 @@ function Layout() {
           onClick={() => setIsMenuOpen((current) => !current)}
           aria-expanded={isMenuOpen}
           aria-controls="app-primary-menu"
+          aria-label={isMenuOpen ? 'Close primary navigation menu' : 'Open primary navigation menu'}
         >
-          {isMenuOpen ? 'Close Menu' : 'Open Menu'}
+          {isMenuOpen ? '✕ Close Menu' : '☰ Open Menu'}
         </button>
       </div>
       <div className="layoutBody">
