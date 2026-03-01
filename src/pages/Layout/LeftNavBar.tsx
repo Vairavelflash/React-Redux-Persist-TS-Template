@@ -1,40 +1,66 @@
 import { NavLink } from 'react-router-dom';
 
-function LeftNavBar() {
+type LeftNavBarProps = {
+  isMenuOpen: boolean;
+  onNavigate?: () => void;
+};
+
+type NavItem = {
+  to: string;
+  label: string;
+  end?: boolean;
+};
+
+const navSections: Array<{ title: string; items: NavItem[] }> = [
+  {
+    title: 'Program',
+    items: [
+      { to: '/', label: 'Home', end: true },
+      { to: '/career', label: 'Coach Career' },
+      { to: '/career/setup', label: 'Career Setup' },
+    ],
+  },
+  {
+    title: 'Season',
+    items: [
+      { to: '/season', label: 'Season Dashboard' },
+      { to: '/season/standings', label: 'Standings' },
+      { to: '/playoffs', label: 'Playoffs' },
+      { to: '/rankings', label: 'Rankings' },
+    ],
+  },
+  {
+    title: 'League',
+    items: [
+      { to: '/conferences', label: 'Conferences' },
+      { to: '/exhibition', label: 'Exhibition' },
+      { to: '/alpha', label: 'Alpha Progress' },
+    ],
+  },
+];
+
+function LeftNavBar({ isMenuOpen, onNavigate }: LeftNavBarProps) {
   const navClassName = ({ isActive }: { isActive: boolean }) =>
     isActive ? 'navLink navLink-active' : 'navLink';
 
   return (
-    <nav className="leftNav">
-      <NavLink to="/" end className={navClassName}>
-        Home
-      </NavLink>
-      <NavLink to="/career" className={navClassName}>
-        Coach Career
-      </NavLink>
-      <div className="separator" style={{ height: '0.5rem' }} />
-      <NavLink to="/season" className={navClassName}>
-        Season Dashboard
-      </NavLink>
-      <NavLink to="/season/standings" className={navClassName}>
-        Standings
-      </NavLink>
-      <NavLink to="/playoffs" className={navClassName}>
-        Playoffs
-      </NavLink>
-      <div className="separator" style={{ height: '0.5rem' }} />
-      <NavLink to="/rankings" className={navClassName}>
-        Rankings
-      </NavLink>
-      <NavLink to="/conferences" className={navClassName}>
-        Conferences
-      </NavLink>
-      <NavLink to="/exhibition" className={navClassName}>
-        Exhibition
-      </NavLink>
-      <NavLink to="/alpha" className={navClassName}>
-        Alpha Progress
-      </NavLink>
+    <nav className={`leftNav ${isMenuOpen ? 'leftNav-open' : ''}`} aria-label="Primary">
+      {navSections.map((section) => (
+        <div key={section.title} className="navSection">
+          <p className="navSectionTitle">{section.title}</p>
+          {section.items.map((item) => (
+            <NavLink
+              key={item.to}
+              to={item.to}
+              end={item.end}
+              className={navClassName}
+              onClick={onNavigate}
+            >
+              {item.label}
+            </NavLink>
+          ))}
+        </div>
+      ))}
     </nav>
   );
 }
