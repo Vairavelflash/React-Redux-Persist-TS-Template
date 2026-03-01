@@ -24,10 +24,16 @@ function TeamPage() {
     return (
       <section className="card">
         <h2>Team not found</h2>
+        <p className="m-0">We couldn&apos;t find a program for id: {id ?? 'unknown'}.</p>
         <Link to="/conferences">Back to conferences</Link>
       </section>
     );
   }
+
+  const topPlayerPositionMix = Object.entries(byPosition)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([pos, count]) => `${pos}(${count})`)
+    .join(', ');
 
   return (
     <section className="card">
@@ -70,7 +76,7 @@ function TeamPage() {
         </tbody>
       </table>
 
-      <p>Top-player position mix: {Object.entries(byPosition).map(([pos, count]) => `${pos}(${count})`).join(', ')}</p>
+      <p>Top-player position mix: {topPlayerPositionMix || 'N/A'}</p>
       <Link to="/conferences">← Back to conferences</Link>
     </section>
   );
