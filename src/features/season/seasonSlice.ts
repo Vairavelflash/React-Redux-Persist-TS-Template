@@ -7,6 +7,7 @@ import { generateRoster } from '../../sim/generateRoster';
 import { selectTeams } from '../league/leagueSlice';
 import { buildPlayoffState, selectPlayoffField, simulatePlayoffRound } from '../../sim/playoffs';
 import { computePlayoffProjection, computeRankings } from '../../sim/rankings';
+import { applyCoachWeekSettings } from '../../sim/coachEffects';
 
 const initialState: SeasonState = {
   year: 2026,
@@ -44,6 +45,7 @@ export const simCurrentWeek = createAsyncThunk(
   async (_, { getState }) => {
     const state = getState() as RootState;
     const { currentWeekIndex, scheduleByWeek, seasonSeed } = state.season;
+    const coachState = state.coach;
     const teams = selectTeams(state);
 
     if (currentWeekIndex >= scheduleByWeek.length) {
@@ -74,11 +76,22 @@ export const simCurrentWeek = createAsyncThunk(
       slideAggression: 'normal',
     } as const;
 
+    const coachTeamTactics = coachState.selectedTeamId
+      ? applyCoachWeekSettings({
+          baseTactics: coachState.tactics,
+          practiceFocus: coachState.practiceFocus,
+          fatigue: coachState.teamFatigue,
+        })
+      : defaultTactics;
+
     gamesToPlay.forEach(game => {
       const homeTeam = getTeam(game.homeTeamId);
       const awayTeam = getTeam(game.awayTeamId);
       const homeRoster = getRoster(game.homeTeamId);
       const awayRoster = getRoster(game.awayTeamId);
+
+      const homeTactics = game.homeTeamId === coachState.selectedTeamId ? coachTeamTactics : defaultTactics;
+      const awayTactics = game.awayTeamId === coachState.selectedTeamId ? coachTeamTactics : defaultTactics;
 
       // Deterministic seed for this game based on season seed and game ID
       // simple hash for now
@@ -87,8 +100,8 @@ export const simCurrentWeek = createAsyncThunk(
       const result = simulateGame(
         { team: homeTeam, roster: homeRoster },
         { team: awayTeam, roster: awayRoster },
-        defaultTactics,
-        defaultTactics,
+        homeTactics,
+        awayTactics,
         gameSeed
       );
 

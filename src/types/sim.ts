@@ -160,6 +160,8 @@ export interface Tactics {
   slideAggression: 'early' | 'normal' | 'late';
 }
 
+export type PracticeFocus = 'OFFENSE' | 'DEFENSE' | 'CONDITIONING' | 'DISCIPLINE';
+
 export type PlayoffRoundName = 'ROUND1' | 'QUARTERFINAL' | 'SEMIFINAL' | 'FINAL';
 
 export interface PlayoffSeed {

@@ -1,7 +1,7 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { RootState } from '../../store/store';
 import { simCurrentWeek } from '../season/seasonSlice';
-import { advanceRecruitingWeek } from './coachSlice';
+import { advanceCoachWeek, advanceRecruitingWeek } from './coachSlice';
 
 export const runCareerWeeklyCycle = createAsyncThunk<'advanced' | 'skipped', void, { state: RootState }>(
   'coach/runCareerWeeklyCycle',
@@ -19,6 +19,7 @@ export const runCareerWeeklyCycle = createAsyncThunk<'advanced' | 'skipped', voi
 
     await dispatch(simCurrentWeek());
     dispatch(advanceRecruitingWeek());
+    dispatch(advanceCoachWeek());
     return 'advanced';
   },
 );

@@ -1,9 +1,10 @@
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
-import { Recruit, RecruitingPitch, SignedRecruit, Tactics, Team } from '../../types/sim';
+import { PracticeFocus, Recruit, RecruitingPitch, SignedRecruit, Tactics, Team } from '../../types/sim';
 
 import { generateRecruitPool, generateSuitors, getTeamPitchGrade } from '../../sim/recruiting';
 import { simulateRecruitingWeek } from '../../sim/recruitingWeek';
 import { resolveSigningDay } from '../../sim/offseason';
+import { advanceFatigue } from '../../sim/coachEffects';
 import { RootState } from '../../store/store';
 
 export const WEEKLY_HOURS_CAP = 120;
@@ -38,6 +39,8 @@ export interface CoachState {
   activePitchesByRecruitId: Record<string, RecruitingPitch>;
   scholarshipsAvailable: number;
   signedRecruitsByYear: Record<number, SignedRecruit[]>;
+  practiceFocus: PracticeFocus;
+  teamFatigue: number;
 }
 
 const initialState: CoachState = {
@@ -59,6 +62,8 @@ const initialState: CoachState = {
   activePitchesByRecruitId: {},
   scholarshipsAvailable: 12,
   signedRecruitsByYear: {},
+  practiceFocus: 'CONDITIONING',
+  teamFatigue: 20,
 };
 
 const coachSlice = createSlice({
@@ -144,6 +149,12 @@ const coachSlice = createSlice({
     setRecruitPitch: (state, action: PayloadAction<{ recruitId: string; pitch: RecruitingPitch }>) => {
         state.activePitchesByRecruitId[action.payload.recruitId] = action.payload.pitch;
     },
+    setPracticeFocus: (state, action: PayloadAction<PracticeFocus>) => {
+        state.practiceFocus = action.payload;
+    },
+    advanceCoachWeek: (state) => {
+        state.teamFatigue = advanceFatigue(state.teamFatigue, state.practiceFocus);
+    },
     applyRecruitingUpdates: (state, action: PayloadAction<{
         interestUpdates: Record<string, Record<string, number>>; // recruitId -> teamId -> interest
         commitments: { recruitId: string; teamId: string }[];
@@ -184,6 +195,8 @@ export const {
     removeRecruitFromBoard,
     setRecruitHours,
     setRecruitPitch,
+    setPracticeFocus,
+    advanceCoachWeek,
     applyRecruitingUpdates,
     finalizeSigningClass,
 } = coachSlice.actions;
