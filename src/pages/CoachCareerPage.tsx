@@ -6,6 +6,7 @@ import {
   removeRecruitFromBoard,
   setRecruitHours,
   setRecruitPitch,
+  setPracticeFocus,
   WEEKLY_HOURS_CAP,
   MAX_HOURS_PER_RECRUIT,
   processSigningDay,
@@ -15,7 +16,7 @@ import { selectTeamRecords } from '../features/season/seasonSlice';
 import { summarizeSigningClass } from '../sim/offseason';
 import { estimateRecruitFit, getTeamPitchGrade } from '../sim/recruiting';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
-import { RecruitingPitch, RecruitMotivation } from '../types/sim';
+import { PracticeFocus, RecruitingPitch, RecruitMotivation } from '../types/sim';
 
 const PITCH_LABELS: Record<RecruitingPitch, string> = {
   PLAYING_TIME: 'Play Time',
@@ -24,6 +25,13 @@ const PITCH_LABELS: Record<RecruitingPitch, string> = {
   PRESTIGE: 'Prestige',
   CHAMPIONSHIP: 'Winning',
   CAMPUS_LIFE: 'Campus',
+};
+
+const PRACTICE_FOCUS_LABELS: Record<PracticeFocus, string> = {
+  OFFENSE: 'Offense Install',
+  DEFENSE: 'Defense Install',
+  CONDITIONING: 'Conditioning',
+  DISCIPLINE: 'Discipline',
 };
 
 function MotivationIcon({ motivation }: { motivation: RecruitMotivation }) {
@@ -176,6 +184,19 @@ function CoachCareerPage() {
                  <div className={`font-bold ${hoursRemaining < 0 ? 'text-red-600' : 'text-green-600'}`}>
                     {hoursRemaining} / {WEEKLY_HOURS_CAP}
                  </div>
+            </div>
+            <div className="flex-1">
+              <div className="text-xs text-gray-500 uppercase">Practice Focus</div>
+              <select
+                value={coach.practiceFocus}
+                onChange={(event) => dispatch(setPracticeFocus(event.target.value as PracticeFocus))}
+                className="w-full mt-1 p-1 text-sm border rounded"
+              >
+                {Object.entries(PRACTICE_FOCUS_LABELS).map(([value, label]) => (
+                  <option key={value} value={value}>{label}</option>
+                ))}
+              </select>
+              <div className="text-xs text-gray-500 mt-1">Fatigue: {coach.teamFatigue}%</div>
             </div>
              <div className="flex-1 text-right">
                  {coach.recruitPool.length === 0 ? (
