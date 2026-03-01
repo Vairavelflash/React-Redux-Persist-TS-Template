@@ -6,10 +6,13 @@ import { useAppSelector } from '../store/hooks';
 function SeasonWeekPage() {
   const { weekIndex } = useParams();
   const navigate = useNavigate();
-  // Ensure we parse weekIndex correctly
-  const rawIndex = Number(weekIndex ?? 0);
-  const weekNum = isNaN(rawIndex) ? 0 : rawIndex;
-  const displayWeek = Math.max(0, Math.min(11, weekNum));
+  const totalWeeks = useAppSelector((state) => state.season.scheduleByWeek.length);
+
+  // Ensure we parse weekIndex safely and clamp against actual schedule length.
+  const parsedWeek = Number(weekIndex ?? 0);
+  const maxWeekIndex = Math.max(totalWeeks - 1, 0);
+  const requestedWeek = Number.isNaN(parsedWeek) ? 0 : Math.floor(parsedWeek);
+  const displayWeek = Math.max(0, Math.min(maxWeekIndex, requestedWeek));
 
   // Selector for games
   const selector = useMemo(() => selectWeekGames(displayWeek), [displayWeek]);
@@ -53,14 +56,16 @@ function SeasonWeekPage() {
                 className="btn"
                 disabled={displayWeek <= 0}
                 onClick={() => navigate(`/season/week/${displayWeek - 1}`)}
+                aria-label="View previous week"
              >
                  &larr;
              </button>
              <h2 className="m-0">Week {displayWeek + 1}</h2>
              <button
                 className="btn"
-                disabled={displayWeek >= 11}
+                disabled={displayWeek >= maxWeekIndex}
                 onClick={() => navigate(`/season/week/${displayWeek + 1}`)}
+                aria-label="View next week"
              >
                  &rarr;
              </button>
@@ -90,6 +95,10 @@ function SeasonWeekPage() {
             </select>
          </div>
       </div>
+
+      <p className="m-0 text-sm text-gray-600">
+        Showing {displayedGames.length} game{displayedGames.length === 1 ? '' : 's'} in week {displayWeek + 1}.
+      </p>
 
       <div className="card p-0 overflow-hidden">
         <div className="overflow-x-auto">
