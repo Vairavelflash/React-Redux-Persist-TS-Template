@@ -37,6 +37,8 @@ export interface Player extends PlayerRatings {
   name: string;
   position: Position;
   year: 1 | 2 | 3 | 4;
+  age: number;
+  skill: number;
   overall: number;
 }
 

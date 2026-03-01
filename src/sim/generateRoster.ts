@@ -21,6 +21,7 @@ export function generateRoster(team: Team, seed: string): Player[] {
 
   return POSITION_DISTRIBUTION.map((position, index) => {
     const year = randInt(rng, 1, 4) as 1 | 2 | 3 | 4;
+    const age = 17 + year + randInt(rng, 0, 1);
     const variance = randInt(rng, -12, 12);
 
     const shooting = clamp(Math.round(baseline + variance + (position === 'A' ? 8 : 0) + (position === 'M' ? 4 : 0)));
@@ -32,12 +33,15 @@ export function generateRoster(team: Team, seed: string): Player[] {
     const discipline = clamp(Math.round(baseline + randInt(rng, -7, 10) + (year - 2)));
 
     const overall = Math.round((shooting + passing + speed + defense + IQ + stamina + discipline) / 7);
+    const skill = clamp(Math.round(overall + (year - 2) + randInt(rng, -3, 3)));
 
     return {
       id: `${team.id}-P${index + 1}`,
       name: `${pickOne(rng, namesData.firstNames)} ${pickOne(rng, namesData.lastNames)}`,
       position,
       year,
+      age,
+      skill,
       shooting,
       passing,
       speed,
