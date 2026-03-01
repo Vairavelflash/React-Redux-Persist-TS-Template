@@ -9,7 +9,10 @@ function ConferencesPage() {
   const [searchText, setSearchText] = useState('');
 
   const regions = useMemo(
-    () => ['all', ...new Set(conferenceRows.flatMap(({ teams }) => teams.map((team) => team.region)))],
+    () => [
+      'all',
+      ...new Set(conferenceRows.flatMap(({ teams }) => teams.map((team) => team.region)).sort((a, b) => a.localeCompare(b))),
+    ],
     [conferenceRows],
   );
 
@@ -20,10 +23,17 @@ function ConferencesPage() {
       const matchesSearch =
         query.length === 0 ||
         conference.name.toLowerCase().includes(query) ||
-        teams.some((team) => `${team.schoolName} ${team.nickname}`.toLowerCase().includes(query));
+        teams.some((team) => `${team.schoolName} ${team.nickname} ${team.region}`.toLowerCase().includes(query));
       return matchesRegion && matchesSearch;
     });
   }, [conferenceRows, regionFilter, searchText]);
+
+  const hasNoResults = filteredRows.length === 0;
+
+  const clearFilters = () => {
+    setRegionFilter('all');
+    setSearchText('');
+  };
 
   return (
     <section>
@@ -52,6 +62,16 @@ function ConferencesPage() {
         </div>
         <p className="text-sm text-gray-500 m-0">Showing {filteredRows.length} conferences.</p>
       </div>
+
+      {hasNoResults ? (
+        <div className="card">
+          <h3>No conferences match your filters.</h3>
+          <p>Try broadening your search text or reset to all regions.</p>
+          <button type="button" className="btn" onClick={clearFilters}>
+            Clear filters
+          </button>
+        </div>
+      ) : null}
 
       {filteredRows.map(({ conference, teams, rosterStrength, averagePrestige, teamCount }) => (
         <div key={conference.id} className="conferenceCard">
