@@ -83,6 +83,10 @@
   font-weight: 600;
 }
 
+.rightNavSection + .rightNavSection {
+  margin-top: 0.75rem;
+}
+
 .layoutBody {
   display: grid;
   grid-template-columns: 300px minmax(0, 1fr) 250px;
@@ -232,18 +236,27 @@
 }
 
 @media (max-width: 980px) {
+  .layout.layout-menuOpen {
+    overflow: hidden;
+  }
+
   .layoutBody {
     grid-template-columns: 1fr;
   }
 
   .menuBarMobile {
     display: block;
+    position: sticky;
+    top: 0.5rem;
+    z-index: 20;
   }
 
   .leftNav {
     display: none;
     position: static;
     margin-bottom: 0.75rem;
+    border-width: 1px;
+    box-shadow: 0 6px 16px rgba(15, 23, 42, 0.35);
   }
 
   .leftNav.leftNav-open {
