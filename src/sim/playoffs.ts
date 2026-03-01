@@ -71,6 +71,13 @@ function nextRoundName(round: PlayoffRoundName): PlayoffRoundName | null {
   return null;
 }
 
+function roundSeedOffset(round: PlayoffRoundName): number {
+  if (round === 'ROUND1') return 100;
+  if (round === 'QUARTERFINAL') return 200;
+  if (round === 'SEMIFINAL') return 300;
+  return 400;
+}
+
 function buildNextRoundGames(state: PlayoffState, round: PlayoffRoundName): PlayoffGame[] {
   const bySeed = new Map(state.seeds.map((item) => [item.seed, item.teamId]));
   const round1 = state.rounds.ROUND1;
@@ -128,12 +135,20 @@ function buildNextRoundGames(state: PlayoffState, round: PlayoffRoundName): Play
 }
 
 export function simulatePlayoffRound(state: PlayoffState, teams: Team[], baseSeed: number, rosterSeed = 'league-roster-v1'): PlayoffState {
+  if (state.championTeamId) {
+    throw new Error('Playoffs already complete.');
+  }
+
   const teamById = new Map(teams.map((team) => [team.id, team]));
   const round = state.currentRound;
   const games = state.rounds[round];
 
   if (games.length === 0) {
     throw new Error(`No games found for current round ${round}.`);
+  }
+
+  if (games.some((game) => game.winnerTeamId || game.result)) {
+    throw new Error(`Round ${round} has already been simulated.`);
   }
 
   const simulatedGames = games.map((game, index) => {
@@ -149,7 +164,7 @@ export function simulatePlayoffRound(state: PlayoffState, teams: Team[], baseSee
       { team: awayTeam, roster: generateRoster(awayTeam, rosterSeed) },
       DEFAULT_TACTICS,
       DEFAULT_TACTICS,
-      baseSeed + index,
+      baseSeed + roundSeedOffset(round) + index,
     );
 
     const winnerTeamId = result.scoreA >= result.scoreB ? game.homeTeamId : game.awayTeamId;
