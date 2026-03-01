@@ -77,4 +77,23 @@ describe('playoff loop', () => {
     assert.equal(second.championTeamId, first.championTeamId);
     assert.deepEqual(second.rounds.FINAL[0].result, first.rounds.FINAL[0].result);
   });
+
+  test('simulatePlayoffRound prevents resimulating a completed round or completed bracket', () => {
+    const teams = createTeams(12);
+    const seeds = selectPlayoffField(createTop12Rankings());
+
+    const initial = buildPlayoffState(seeds);
+    const afterRound1 = simulatePlayoffRound(initial, teams, 12345);
+    const staleRoundPointer = { ...afterRound1, currentRound: 'ROUND1' as const };
+
+    assert.throws(() => simulatePlayoffRound(staleRoundPointer, teams, 12345), /already been simulated/);
+
+    let complete = buildPlayoffState(seeds);
+    complete = simulatePlayoffRound(complete, teams, 12345);
+    complete = simulatePlayoffRound(complete, teams, 12345);
+    complete = simulatePlayoffRound(complete, teams, 12345);
+    complete = simulatePlayoffRound(complete, teams, 12345);
+
+    assert.throws(() => simulatePlayoffRound(complete, teams, 12345), /already complete/);
+  });
 });
