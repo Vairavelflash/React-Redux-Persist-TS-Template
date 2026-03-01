@@ -1,4 +1,4 @@
-import { RankingRow, Team, TeamRecord } from '../types/sim';
+import { RankingRow, RankingScoreBreakdown, Team, TeamRecord } from '../types/sim';
 
 interface RankingInputRow {
   team: Team;
@@ -10,12 +10,36 @@ function winPct(wins: number, losses: number): number {
   return total > 0 ? wins / total : 0;
 }
 
-function scoreTeam(row: RankingInputRow): number {
-  const overallPct = winPct(row.record.wins, row.record.losses);
-  const confPct = winPct(row.record.confWins, row.record.confLosses);
-  const pointDiff = row.record.pointsFor - row.record.pointsAgainst;
+export const RANKING_WEIGHTS = {
+  overallWinPct: 1000,
+  conferenceWinPct: 300,
+  pointDifferential: 2,
+  prestige: 0.8,
+  scoringVolume: 0.15,
+} as const;
 
-  return overallPct * 1000 + confPct * 300 + pointDiff * 2 + row.team.prestige * 0.8 + row.record.pointsFor * 0.15;
+export function computeRankingBreakdown(team: Team, record: TeamRecord): RankingScoreBreakdown {
+  const overallWinPctPoints = winPct(record.wins, record.losses) * RANKING_WEIGHTS.overallWinPct;
+  const conferenceWinPctPoints = winPct(record.confWins, record.confLosses) * RANKING_WEIGHTS.conferenceWinPct;
+  const pointDifferentialPoints =
+    (record.pointsFor - record.pointsAgainst) * RANKING_WEIGHTS.pointDifferential;
+  const prestigePoints = team.prestige * RANKING_WEIGHTS.prestige;
+  const scoringVolumePoints = record.pointsFor * RANKING_WEIGHTS.scoringVolume;
+  const totalPoints =
+    overallWinPctPoints + conferenceWinPctPoints + pointDifferentialPoints + prestigePoints + scoringVolumePoints;
+
+  return {
+    overallWinPctPoints,
+    conferenceWinPctPoints,
+    pointDifferentialPoints,
+    prestigePoints,
+    scoringVolumePoints,
+    totalPoints,
+  };
+}
+
+function scoreTeam(row: RankingInputRow): number {
+  return computeRankingBreakdown(row.team, row.record).totalPoints;
 }
 
 export function computeRankings(teams: Team[], recordsByTeamId: Record<string, TeamRecord>, topN = 25): RankingRow[] {

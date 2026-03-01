@@ -23,8 +23,8 @@ const alphaChecklist = [
   },
   {
     area: 'Alpha UX + Quality Bar',
-    status: 'next',
-    details: 'Prioritize ranking transparency, game detail depth, responsiveness, and regression test coverage.',
+    status: 'in-progress',
+    details: 'Ranking transparency shipped; continue game detail depth, responsiveness, and regression test coverage.',
   },
 ] as const;
 
@@ -75,7 +75,7 @@ function AlphaStagePage() {
       <section className="card">
         <h3>Recommended Next Steps</h3>
         <ol style={{ margin: '0.5rem 0 0 1rem' }}>
-          <li>Finalize ranking and playoff scoring heuristics, then document selection rules.</li>
+          <li>Continue balancing ranking and playoff scoring heuristics using season-level regression checks.</li>
           <li>Deepen season week/game drill-down so users can inspect outcomes clearly.</li>
           <li>Add alpha regression checks around season progression, rankings, and playoffs.</li>
           <li>Run a UX polish pass for responsive layout and accessibility basics.</li>
