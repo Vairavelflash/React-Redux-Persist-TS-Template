@@ -2,12 +2,15 @@ import { Link } from 'react-router-dom';
 import { useAppSelector } from '../../store/hooks';
 
 function Header() {
+  const onboardingStep = useAppSelector((state) => state.coach.onboardingStep);
   const selectedTeamId = useAppSelector((state) => state.coach.selectedTeamId);
   const teams = useAppSelector((state) => state.league.teams);
   const season = useAppSelector((state) => state.season);
 
   const selectedTeam = teams.find((team) => team.id === selectedTeamId) ?? null;
   const seasonStarted = season.phase !== 'PRE';
+  const continuePath = onboardingStep === 'READY' ? '/career' : '/career/setup';
+  const continueLabel = onboardingStep === 'READY' ? 'Continue' : 'Start Career';
 
   return (
     <header className="header dynastyHeader">
@@ -25,8 +28,8 @@ function Header() {
           <strong>{season.year}</strong>
           <small>{seasonStarted ? `Week ${season.currentWeekIndex + 1}` : 'Preseason'}</small>
         </div>
-        <Link to="/season" className="btn btn-primary dynastyActionBtn">
-          Continue
+        <Link to={continuePath} className="btn btn-primary dynastyActionBtn">
+          {continueLabel}
         </Link>
       </div>
     </header>
