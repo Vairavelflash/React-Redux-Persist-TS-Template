@@ -10,15 +10,21 @@ export const runCareerWeeklyCycle = createAsyncThunk<'advanced' | 'skipped', voi
     const season = state.season;
     const coach = state.coach;
 
-    const canAdvanceRecruiting = coach.recruitPool.length > 0 && coach.boardRecruitIds.length > 0 && Boolean(coach.selectedTeamId);
+    const canAdvanceRecruiting = coach.recruitPool.length > 0 && Boolean(coach.selectedTeamId);
     const canSimSeasonWeek = season.phase === 'REGULAR' && season.scheduleByWeek.length === 12 && season.currentWeekIndex < 12;
 
-    if (!canAdvanceRecruiting || !canSimSeasonWeek) {
+    if (!canSimSeasonWeek) {
       return 'skipped';
     }
 
     await dispatch(simCurrentWeek());
-    dispatch(advanceRecruitingWeek());
+
+    // Recruiting updates are optional; season progression should still work even if
+    // the user has no active targets on their board.
+    if (canAdvanceRecruiting) {
+      await dispatch(advanceRecruitingWeek());
+    }
+
     dispatch(advanceCoachWeek());
     return 'advanced';
   },
