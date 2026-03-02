@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
-import { PracticeFocus, Recruit, RecruitingPitch, SignedRecruit, Tactics, Team } from '../../types/sim';
+import { CareerRecord, PracticeFocus, Recruit, RecruitingPitch, SeasonHistoryEntry, SignedRecruit, Tactics, Team } from '../../types/sim';
 
 import { generateRecruitPool, generateSuitors, getTeamPitchGrade } from '../../sim/recruiting';
 import { simulateRecruitingWeek } from '../../sim/recruitingWeek';
@@ -41,6 +41,10 @@ export interface CoachState {
   signedRecruitsByYear: Record<number, SignedRecruit[]>;
   practiceFocus: PracticeFocus;
   teamFatigue: number;
+  // Career progression
+  jobSecurity: number;
+  seasonHistory: SeasonHistoryEntry[];
+  careerRecord: CareerRecord;
 }
 
 const initialState: CoachState = {
@@ -64,6 +68,16 @@ const initialState: CoachState = {
   signedRecruitsByYear: {},
   practiceFocus: 'CONDITIONING',
   teamFatigue: 20,
+  // Career progression
+  jobSecurity: 60,
+  seasonHistory: [],
+  careerRecord: {
+    totalWins: 0,
+    totalLosses: 0,
+    playoffAppearances: 0,
+    championships: 0,
+    seasonsCompleted: 0,
+  },
 };
 
 const coachSlice = createSlice({
@@ -90,6 +104,8 @@ const coachSlice = createSlice({
         state.careerTier = action.payload.careerTier;
         state.programExpectations = action.payload.programExpectations;
         state.onboardingStep = 'READY'; // Changed to READY as per component check
+        // Set job security baseline from expectations
+        state.jobSecurity = action.payload.programExpectations.securityBaseline;
     },
     initializeRecruitingBoard: (state, action: PayloadAction<{ seed: number; teams: Team[] }>) => {
         state.recruitingSeed = action.payload.seed;
@@ -153,7 +169,27 @@ const coachSlice = createSlice({
         state.practiceFocus = action.payload;
     },
     advanceCoachWeek: (state) => {
-        state.teamFatigue = advanceFatigue(state.teamFatigue, state.practiceFocus);
+        state.teamFatigue = advanceFatigue(state.teamFatigue, state.practiceFocus, state.profile?.archetype ?? 'RECRUITER');
+    },
+    updateJobSecurity: (state, action: PayloadAction<number>) => {
+        state.jobSecurity = Math.max(0, Math.min(100, action.payload));
+    },
+    recordSeasonEnd: (state, action: PayloadAction<SeasonHistoryEntry>) => {
+        state.seasonHistory.push(action.payload);
+        state.careerRecord.seasonsCompleted += 1;
+        state.careerRecord.totalWins += action.payload.wins;
+        state.careerRecord.totalLosses += action.payload.losses;
+        if (action.payload.madePlayoffs) state.careerRecord.playoffAppearances += 1;
+        if (action.payload.champion) state.careerRecord.championships += 1;
+    },
+    resetRecruitingForNewSeason: (state) => {
+        state.recruitPool = [];
+        state.boardRecruitIds = [];
+        state.weeklyHoursByRecruitId = {};
+        state.activePitchesByRecruitId = {};
+        state.recruitingWeekIndex = 0;
+        state.scholarshipsAvailable = 12;
+        state.teamFatigue = 20;
     },
     applyRecruitingUpdates: (state, action: PayloadAction<{
         interestUpdates: Record<string, Record<string, number>>; // recruitId -> teamId -> interest
@@ -199,6 +235,9 @@ export const {
     advanceCoachWeek,
     applyRecruitingUpdates,
     finalizeSigningClass,
+    updateJobSecurity,
+    recordSeasonEnd,
+    resetRecruitingForNewSeason,
 } = coachSlice.actions;
 
 
@@ -235,6 +274,13 @@ export const advanceRecruitingWeek = createAsyncThunk(
              }
         });
 
+        // Derive archetype bonus: RECRUITER +15%, DEVELOPER -5%, TACTICIAN neutral
+        const archetypeBonus =
+            coach.profile?.archetype === 'RECRUITER' ? 1.15
+            : coach.profile?.archetype === 'DEVELOPER' ? 0.95
+            : 1.0;
+        const coachSkill = coach.profile?.skill ?? 72;
+
         const result = simulateRecruitingWeek(
             coach.recruitPool,
             coach.boardRecruitIds,
@@ -244,7 +290,9 @@ export const advanceRecruitingWeek = createAsyncThunk(
             dealbreakerViolationsByRecruitId,
             coach.selectedTeamId,
             coach.recruitingSeed,
-            coach.recruitingWeekIndex
+            coach.recruitingWeekIndex,
+            archetypeBonus,
+            coachSkill
         );
 
         const commitments: { recruitId: string; teamId: string }[] = [];

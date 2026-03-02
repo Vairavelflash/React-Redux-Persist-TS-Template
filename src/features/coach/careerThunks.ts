@@ -1,7 +1,13 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { RootState } from '../../store/store';
-import { simCurrentWeek } from '../season/seasonSlice';
-import { advanceCoachWeek, advanceRecruitingWeek } from './coachSlice';
+import { simCurrentWeek, selectTeamRecords } from '../season/seasonSlice';
+import {
+  advanceCoachWeek,
+  advanceRecruitingWeek,
+  updateJobSecurity,
+  recordSeasonEnd,
+  resetRecruitingForNewSeason,
+} from './coachSlice';
 
 export const runCareerWeeklyCycle = createAsyncThunk<'advanced' | 'skipped', void, { state: RootState }>(
   'coach/runCareerWeeklyCycle',
@@ -27,5 +33,65 @@ export const runCareerWeeklyCycle = createAsyncThunk<'advanced' | 'skipped', voi
 
     dispatch(advanceCoachWeek());
     return 'advanced';
+  },
+);
+
+export const processSeasonEnd = createAsyncThunk<void, void, { state: RootState }>(
+  'coach/processSeasonEnd',
+  async (_arg, { dispatch, getState }) => {
+    const state = getState();
+    const coach = state.coach;
+    const season = state.season;
+
+    if (!coach.selectedTeamId || !coach.programExpectations) return;
+
+    const records = selectTeamRecords(state);
+    const userRecord = records[coach.selectedTeamId] ?? { wins: 0, losses: 0 };
+    const wins = userRecord.wins;
+    const losses = userRecord.losses;
+
+    // Determine playoff outcomes
+    const playoffSeeds = season.playoffs?.seeds ?? [];
+    const madePlayoffs = playoffSeeds.some((s) => s.teamId === coach.selectedTeamId);
+    const champion = season.playoffs?.championTeamId === coach.selectedTeamId;
+
+    // Job security delta: compare actual wins to win target
+    const winDiff = wins - coach.programExpectations.winTarget;
+    let securityDelta: number;
+    if (champion) {
+      securityDelta = 25;
+    } else if (madePlayoffs) {
+      securityDelta = 10;
+    } else if (winDiff >= 2) {
+      securityDelta = 12;
+    } else if (winDiff >= 0) {
+      securityDelta = 4;
+    } else if (winDiff >= -2) {
+      securityDelta = -10;
+    } else {
+      securityDelta = -22;
+    }
+    const newJobSecurity = Math.max(0, Math.min(100, coach.jobSecurity + securityDelta));
+
+    // Signing class stats
+    const signedClass = coach.signedRecruitsByYear[season.year] ?? [];
+    const avgRecruitStars =
+      signedClass.length > 0
+        ? signedClass.reduce((sum, s) => sum + s.stars, 0) / signedClass.length
+        : 0;
+
+    dispatch(recordSeasonEnd({
+      year: season.year,
+      wins,
+      losses,
+      madePlayoffs,
+      champion,
+      recruitsSigned: signedClass.length,
+      avgRecruitStars: Math.round(avgRecruitStars * 100) / 100,
+      jobSecurityEnd: newJobSecurity,
+    }));
+
+    dispatch(updateJobSecurity(newJobSecurity));
+    dispatch(resetRecruitingForNewSeason());
   },
 );

@@ -210,3 +210,22 @@ export interface LeagueData {
   conferences: Conference[];
   teams: Team[];
 }
+
+export interface SeasonHistoryEntry {
+  year: number;
+  wins: number;
+  losses: number;
+  madePlayoffs: boolean;
+  champion: boolean;
+  recruitsSigned: number;
+  avgRecruitStars: number;
+  jobSecurityEnd: number;
+}
+
+export interface CareerRecord {
+  totalWins: number;
+  totalLosses: number;
+  playoffAppearances: number;
+  championships: number;
+  seasonsCompleted: number;
+}

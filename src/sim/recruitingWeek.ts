@@ -36,6 +36,8 @@ export function simulateRecruitingWeek(
   selectedTeamId: TeamId | null,
   seed: number,
   weekIndex: number,
+  archetypeBonus: number = 1.0,
+  coachSkill: number = 72,
 ): RecruitingWeekResult {
   const rng = makeRng(seed + weekIndex * 9973);
   const boardSet = new Set(boardRecruitIds);
@@ -63,11 +65,15 @@ export function simulateRecruitingWeek(
       let weeklyGain = 0;
 
       if (hours > 0) {
-        // Tuned down constants:
         // Hours: 0.5 per hour (20 hours = 10 pts)
         // Stars: 0.2 per star (5 stars = 1 pt)
         // Random: -1 to +1
-        const baseGain = hours * 0.5 + recruit.stars * 0.2 + (rng() * 2 - 1);
+        const rawGain = hours * 0.5 + recruit.stars * 0.2 + (rng() * 2 - 1);
+
+        // Archetype bonus (RECRUITER +15%, DEVELOPER -5%, TACTICIAN ±0%)
+        // Coach skill scales from 0.85x at skill 40 to 1.15x at skill 99
+        const skillMult = 0.85 + ((coachSkill - 40) / 59) * 0.3;
+        const baseGain = rawGain * archetypeBonus * skillMult;
 
         let pitchBonus = 0;
         if (activePitch) {

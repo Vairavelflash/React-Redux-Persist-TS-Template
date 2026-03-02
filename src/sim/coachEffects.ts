@@ -40,7 +40,11 @@ export function applyCoachWeekSettings(settings: CoachWeekSettings): Tactics {
   return next;
 }
 
-export function advanceFatigue(previousFatigue: number, focus: PracticeFocus): number {
+export function advanceFatigue(
+  previousFatigue: number,
+  focus: PracticeFocus,
+  archetype: 'RECRUITER' | 'TACTICIAN' | 'DEVELOPER' = 'RECRUITER',
+): number {
   const bounded = clamp(previousFatigue, 0, 100);
 
   const byFocus: Record<PracticeFocus, number> = {
@@ -51,5 +55,9 @@ export function advanceFatigue(previousFatigue: number, focus: PracticeFocus): n
   };
 
   const recovery = focus === 'CONDITIONING' ? 6 : 2;
-  return clamp(bounded + byFocus[focus] - recovery, 0, 100);
+  const rawDelta = byFocus[focus] - recovery;
+
+  // TACTICIAN manages player loads better: 20% less net fatigue accumulation
+  const archetypeReduction = archetype === 'TACTICIAN' ? 0.8 : 1.0;
+  return clamp(bounded + rawDelta * archetypeReduction, 0, 100);
 }
