@@ -13,6 +13,13 @@ Usage:
 git clone https://github.com/your-username/your-repository.git
 
 ```
+# Brach:
+```
+master - redux
+rtkQuery - redux + rtkQuery
+
+```
+
 # Install Dependencies:
 ```
 cd your-repository
