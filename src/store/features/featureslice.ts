@@ -3,26 +3,26 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 export interface ConfigurationState {
-btn:boolean
+btnState:boolean
 }
 
 const initialState: ConfigurationState = {
-btn:false
+btnState:false
 };
 
 const configurationSlice = createSlice({
   name: "configuration",
   initialState,
   reducers: {
-    setState: (state, action: PayloadAction<boolean>) => {
-      state.btn=action.payload;
+    setBtnState: (state, action: PayloadAction<boolean>) => {
+      state.btnState=action.payload;
     },
   
   },
 });
 
 export const {
-  setState
+  setBtnState
 } = configurationSlice.actions;
 
 export default configurationSlice.reducer;

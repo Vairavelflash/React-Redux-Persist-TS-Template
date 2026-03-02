@@ -10,14 +10,14 @@ function App() {
       element: <Login />,
     },
 
-    {
-      path: "/Home",
-      element: (
-        <Layout>
-          <Home />
-        </Layout>
-      ),
-    },
+    // {
+    //   path: "/Home",
+    //   element: (
+    //     <Layout>
+    //       <Home />
+    //     </Layout>
+    //   ),
+    // },
   ]);
 
   return <RouterProvider router={router} />;

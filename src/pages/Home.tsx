@@ -1,14 +1,14 @@
 import React from "react";
 import { RootState } from "../store/store";
 import { useDispatch, useSelector } from "react-redux";
-import { setState } from "../store/features/featureslice";
+import { setBtnState } from "../store/features/featureslice";
 
 function Home() {
   const dispatch = useDispatch();
-  const btnState = useSelector((state: RootState) => state.configuration.btn);
+  const btnState = useSelector((state: RootState) => state.configuration.btnState);
   return (
     <div className="card">
-      <button onClick={() => dispatch(setState(!btnState))}>
+      <button onClick={() => dispatch(setBtnState(!btnState))}>
         Home - Button state is {btnState ? "True" : "False"}
       </button>
     </div>
